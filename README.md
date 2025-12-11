@@ -1,5 +1,7 @@
 # reserve-it!
 
+[![Tests](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml)
+
 A dead-simple reservation system framework, built on Google Calendar.
 
 `reserve-it!` is a lightweight framework that enables rapidly building a web server for shared community amenity/resource reservations.
