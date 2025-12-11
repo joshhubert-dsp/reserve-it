@@ -1,0 +1,27 @@
+resource_name: Tennis Courts
+emoji: 🎾
+description: Love is nothing.
+# the google calendars for each individual tennis court
+calendars:
+  {
+    CourtA: { id: longhexstring1@group.calendar.google.com, color: "#AA0000" },
+    CourtB: { id: longhexstring2@group.calendar.google.com, color: "#00AA00" },
+    CourtC: { id: longhexstring3@group.calendar.google.com, color: "#0000AA" },
+  }
+
+day_start_time: 8:00 AM
+day_end_time: 8:00 PM
+# the granularity of available reservations, here it's every hour from 8 to 8.
+minutes_increment: 60
+# the maximum allowed reservation length
+maximum_minutes: 180
+# users can choose whether to receive an email reminder
+minutes_before_reminder: 60
+# how far in advance users are allowed to make reservations
+maximum_days_ahead: 14
+# users can choose whether they're willing to share a resource with others
+allow_shareable: true
+
+# arbitrary extra fields can be defined per resource, these are made available for
+# validation by defining a resource-specific custom ReservationRequest subclass
+custom_form_fields: [{ type: number, name: ntrp, label: NTRP Rating, required: True }]

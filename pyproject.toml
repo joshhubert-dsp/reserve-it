@@ -1,0 +1,55 @@
+[project]
+name = "reserve-it"
+version = "0.1.0"
+description = "A dead-simple reservation system framework, built on Google Calendar."
+readme = "README.md"
+authors = [
+    { name = "joshhubert-dsp", email = "102703352+joshhubert-dsp@users.noreply.github.com" },
+]
+license = "MIT"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "apscheduler>=3.11.1",
+    "colorama>=0.4.6",
+    "devtools>=0.12.2",
+    "fastapi>=0.121.2",
+    "gcsa>=2.6.0",
+    "jinja2>=3.1.6",
+    "loguru>=0.7.3",
+    "pydantic-settings>=2.12.0",
+    "pydantic[email]>=2.12.4",
+    "python-multipart>=0.0.20",
+    "pyyaml>=6.0.3",
+    "rich>=14.2.0",
+    "sqlmodel>=0.0.27",
+    "uvicorn>=0.38.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+
