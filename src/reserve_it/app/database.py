@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from contextlib import contextmanager
+from contextlib import AbstractContextManager, contextmanager
 from datetime import datetime
-from typing import ContextManager
 
 from sqlalchemy import Engine as SqlEngine
 from sqlmodel import Session, delete, select
 
 from reserve_it.models.reservation import Reservation
 
-SessionFactory = Callable[[], ContextManager[Session]]
+SessionFactory = Callable[[], AbstractContextManager[Session]]
 
 
 def create_session_factory(engine: SqlEngine) -> SessionFactory:

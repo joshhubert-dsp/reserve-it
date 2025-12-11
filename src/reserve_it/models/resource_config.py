@@ -137,4 +137,4 @@ class ResourceConfig(BaseSettings):
                 f"Error loading ResourceConfig for resource '{obj['route_prefix']}': {e}"
             )
             # Kill the process cleanly; uvicorn etc will just see a non-zero exit
-            raise SystemExit(1)
+            raise SystemExit(1) from e

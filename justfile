@@ -31,7 +31,7 @@ format:
 
 # run code quality checks
 lint:
-    uvx ruff check --fix . --extend-select I
+    uvx ruff check --fix .
     # TODO
     #uvx mypy .
 
