@@ -12,7 +12,7 @@ password or other authentication in the web form, see below.
 
 ![form page](form-page.png)
 
-If you have multiple resources to reserve, it automatically makse the root endpoint a
+If you have multiple resources to reserve, it automatically makes the root endpoint a
 home page for navigating between them:
 ![home page](home-page.png)
 
