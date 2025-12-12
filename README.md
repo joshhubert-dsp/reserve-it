@@ -2,9 +2,9 @@
 
 [![Tests](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml)
 
-A dead-simple reservation system framework, built on Google Calendar.
+A dead-simple reservation system framework, built on Google Calendar and Pydantic.
 
-`reserve-it!` is a lightweight framework that enables rapidly building a web server for shared community amenity/resource reservations.
+`reserve-it` is a lightweight framework that enables rapidly building a web server for shared community amenity/resource reservations.
 It provides a customizable validation logic layer around creating events in a restricted but publicly
 viewable Google calendar. Users don't need to make an account, the base configuration
 only requires an email address. You can choose whether or not to implement a shared
@@ -63,12 +63,12 @@ from pydantic import model_validator
 from reserve_it import CustomFormField, ReservationRequest, build_app
 
 
-# This defines a password form field that is added to all resources.
+# This defines a password form field that is added to all resource reservation webpages
 PASSWORD_FIELD = CustomFormField(
     type="password", name="password", label="Password", required=True
 )
 
-# This subclass handles password validation.
+# This subclass handles password validation
 class PasswordProtectedRequest(ReservationRequest):
     password: str
 
@@ -111,24 +111,25 @@ if __name__ == "__main__":
 -   Additionally users can opt to receive a reminder email N minutes before their
     reservation.
 -   One reservation can be held per email address at a time. Users can cancel their
-    reservations to reschedule. A sqlite database is stored on the server to enforce
-    this.
--   The time granularity/particulars for each set of resources is ergonomically defined
-    in a yaml file for each set, as shown above.
--   Each independently reservable resource is backed by its own Google calendar. A set
-    of related resources should be bundled into a single yaml file (see `calendars`
-    section above). When a user submits a reservation, the first resource still
-    available during the selected time is automatically chosen.
--   If you want to handle reservations for more than one set of resources (say a tennis
-    court and a basketball court), define one
-    yaml file per set. When more than one file is present in the yaml directory, a home
-    page is automatically generated for navigating between them.
+    reservations to reschedule. A minimal sqlite database is stored on the server to
+    enforce this.
+-   Each independently reservable resource is backed by its own Google calendar. When a
+    user submits a reservation, each included calendar is checked, and the first
+    calendar still available during the selected time is automatically chosen.
+-   The time granularity and other configuration for each set of related resources (ie.
+    a set of tennis courts) is ergonomically defined in a single yaml file (see
+    `calendars` section in the yaml example above). Each yaml file maps to a single
+    reservation webpage.
+-   Yaml files are stored in the directory passed to `resource_config_path`. When more
+    than one yaml file is present, a home page is automatically generated for navigating
+    between reservation webpages, and the filenames are used for the endpoint paths.
 -   For resources that can be shared between multiple users at once (like say, a sauna),
-    users can select that they are willing to share with others. In this case, multiple
+    users can select that they are willing to share with others. If they are, subsequent
     users who are willing to share can reserve overlapping times, while users who are
     not willing to share are barred from these times like normal.
--   Define custom form input fields and validation logic either globally or per
-    reservation page.
+-   You may define custom form input fields and validation logic either globally or per
+    reservation page via the yaml file. This data will be available for validation only,
+    but not stored to the database.
 -   Webpage light/dark mode toggle that respects user system settings by default.
 
 ## TODO

@@ -7,11 +7,13 @@ from pydantic import model_validator
 
 from reserve_it import CustomFormField, ReservationRequest, build_app
 
+# This defines a password form field that is added to all resource reservation webpages
 PASSWORD_FIELD = CustomFormField(
     type="password", name="password", label="Password", required=True
 )
 
 
+# This subclass handles password validation
 class PasswordProtectedRequest(ReservationRequest):
     password: str
 
