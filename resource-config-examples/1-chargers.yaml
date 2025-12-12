@@ -1,7 +1,7 @@
 resource_name: EV Chargers
 emoji: ⚡️
 description: EV1 is the charger on the left, EV2 is the one on the right. You'll automatically be assigned to whichever is free.
-# the google calendars for each individual EV charger
+# the google calendar ids for each individual EV charger
 calendars:
   {
     EV1: { id: longhexstring1@group.calendar.google.com, color: "#44CC44" },

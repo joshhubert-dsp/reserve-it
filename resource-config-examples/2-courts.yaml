@@ -1,7 +1,7 @@
 resource_name: Tennis Courts
 emoji: 🎾
 description: Love is nothing.
-# the google calendars for each individual tennis court
+# the google calendar ids for each individual tennis court
 calendars:
   {
     CourtA: { id: longhexstring1@group.calendar.google.com, color: "#AA0000" },

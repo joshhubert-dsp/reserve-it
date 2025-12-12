@@ -40,7 +40,7 @@ version: 0.1.0
 resource_name: Tennis Courts
 emoji: 🎾
 description: Love is nothing.
-# the google calendars for each individual tennis court
+# the google calendar ids for each individual tennis court
 calendars:
     { CourtA: { id: longhexstring1@group.calendar.google.com, color: "#AA0000" } }
     { CourtB: { id: longhexstring2@group.calendar.google.com, color: "#00AA00" } }
@@ -131,13 +131,16 @@ if __name__ == "__main__":
 -   One reservation can be held per email address at a time. Users can cancel their
     reservations to reschedule. A minimal sqlite database is stored on the server to
     enforce this.
--   Each independently reservable resource is backed by its own Google calendar. When a
-    user submits a reservation, each included calendar is checked, and the first
-    calendar still available during the selected time is automatically chosen.
--   The time granularity and other configuration for each set of related resources (ie.
-    a set of tennis courts) is ergonomically defined in a single yaml file (see
-    `calendars` section in the yaml example above). Each yaml file maps to a single
+-   Each independently reservable resource (ie. a single tennis court) is backed by its
+    own Google calendar. When a user submits a reservation, each included calendar is
+    checked, and the first calendar found to be available during the selected time is
+    selected.
+-   The page elements, time granularity and other configuration for each set of
+    related resources (ie. a set of tennis courts) are ergonomically defined in a single
+    yaml file (see the yaml example [3] above). Each yaml file maps to a single
     reservation webpage.
+-   Each reservation webpage displays a form input, and optionally an embedded calendar
+    view and an arbitrary descriptive image you provide.
 -   Yaml files are stored in the directory passed to `resource_config_path`. When more
     than one yaml file is present, a home page is automatically generated for navigating
     between reservation webpages, and the filenames are used for the endpoint paths.
