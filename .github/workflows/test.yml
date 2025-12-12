@@ -35,9 +35,6 @@ jobs:
     - name: Lint with ruff
       run: |
         ruff check
-    - name: Install project
-      run: |
-        pip install .
     - name: Run tests
       run: |
         pytest
