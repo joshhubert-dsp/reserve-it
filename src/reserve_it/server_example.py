@@ -31,10 +31,11 @@ if __name__ == "__main__":
         title="Reserve-It Form Server Example",
         description="Form server for shared community amenity/resource reservations.",
         resource_config_path=SRC_ROOT / "resource-config-examples",
-        sqlite_db_path=SRC_ROOT / "sqlite_dbs",
+        sqlite_dir=SRC_ROOT / "sqlite_dbs",
         gcal_cred_path=SRC_ROOT / "client_secret.json",
         gcal_token_path=SRC_ROOT / "auth_token.json",
         custom_form_fields=PASSWORD_FIELD,
+        image_dir=SRC_ROOT / "resource-config-examples",
         request_classes=PasswordProtectedRequest,
         version="0.1.0",
     )

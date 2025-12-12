@@ -47,10 +47,11 @@ def build_app(
     title: str,
     description: str,
     resource_config_path: DirectoryPath | FilePath,
-    sqlite_db_path: DirectoryPath,
+    sqlite_dir: DirectoryPath,
     gcal_cred_path: FilePath,
     gcal_token_path: FilePath | None = None,
     custom_form_fields: CustomFormField | list[CustomFormField] | None = None,
+    image_dir: DirectoryPath | None = None,
     request_classes: (
         type[ReservationRequest] | dict[str, type[ReservationRequest]]
     ) = ReservationRequest,
@@ -66,7 +67,7 @@ def build_app(
             are multiple resources, and openapi docs if enabled.
         resource_config_path (DirectoryPath | FilePath): Path to a single resource
             config yaml file, or a folder full of them.
-        sqlite_db_path (DirectoryPath): Path to a folder where sqlite databases will be
+        sqlite_dir (DirectoryPath): Path to a folder where sqlite databases will be
             generated and stored. Each resource generates a database, and the reminder
             job scheduler generates an additional one that serves all resources.
         gcal_cred_path (FilePath): Path to the json file holding static OAuth client ID
@@ -81,6 +82,12 @@ def build_app(
             Custom html input form field(s) you want to add to all your resource
             reservation webpages. Note that custom form fields for individual resources
             should be defined in their respective yaml files. Defaults to None.
+        image_dir (DirectoryPath | None, optional): Path to a folder where images you
+            want to display on reservation webpages are stored, to be mounted to the
+            app. These can be helpful diagrams or just pretty pictures, whatever your
+            heart desires. All image files must be in the root of this folder (no
+            nesting). You can have one image per page, for now. Defaults to
+            None.
         request_classes (type[ReservationRequest] | dict[str, type[ReservationRequest]], optional):
             Either a single global ReservationRequest model subclass to use for form input
             validation for all resources, one a dict of one subclass per resource, with
@@ -99,21 +106,24 @@ def build_app(
         resource_config_path,
         custom_form_fields,
         request_classes,
-        sqlite_db_path,
+        sqlite_dir,
         app_cfg,
         gcal_cred_path,
         gcal_token_path,
     )
 
-    app = _create_app(title, description, version, openapi_url, sqlite_db_path)
-    _configure_app_state(app, app_cfg, dependencies)
+    app = _create_app(title, description, version, openapi_url, sqlite_dir)
+    _configure_app_state(app, app_cfg, dependencies, image_dir)
 
     app.add_exception_handler(RequestValidationError, log_request_validation_error)
     app.add_exception_handler(ValidationError, handle_validation_error)
     app.add_exception_handler(Exception, log_unexpected_exception)
 
-    # add js files
+    # add directory for js files
     app.mount("/static", StaticFiles(directory=SRC_ROOT / "static"), name="static")
+    # add directory for optional webpage images
+    if image_dir:
+        app.mount("/images", StaticFiles(directory=image_dir), name="images")
 
     _register_resource_routes(app, dependencies.resource_bundles, app_cfg)
 
@@ -128,7 +138,7 @@ def _initialize_dependencies(
     resource_config_path: DirectoryPath | FilePath,
     custom_form_fields: CustomFormField | list[CustomFormField] | None,
     request_classes: type[ReservationRequest] | dict[str, type[ReservationRequest]],
-    sqlite_db_path: DirectoryPath,
+    sqlite_dir: DirectoryPath,
     app_cfg: AppConfig,
     gcal_cred_path: FilePath,
     gcal_token_path: FilePath | None,
@@ -147,7 +157,7 @@ def _initialize_dependencies(
 
     normalized_requests = _normalize_request_classes(request_classes, resource_configs)
     resource_bundles = init_dbs_and_bundles(
-        resource_configs, normalized_requests, sqlite_db_path, app_cfg.db_echo
+        resource_configs, normalized_requests, sqlite_dir, app_cfg.db_echo
     )
     gcal = init_gcal(app_cfg.timezone, gcal_cred_path, gcal_token_path)
     calendar_service = GoogleCalendarService(gcal)
@@ -191,11 +201,15 @@ def _create_app(
 
 
 def _configure_app_state(
-    app: FastAPI, app_cfg: AppConfig, dependencies: AppDependencies
+    app: FastAPI,
+    app_cfg: AppConfig,
+    dependencies: AppDependencies,
+    image_dir: DirectoryPath,
 ) -> None:
     app.state.config = app_cfg
     app.state.resource_bundles = dependencies.resource_bundles
     app.state.calendar_service = dependencies.calendar_service
+    app.state.image_dir = image_dir
 
 
 def _register_resource_routes(

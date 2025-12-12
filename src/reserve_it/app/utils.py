@@ -82,7 +82,9 @@ def load_resource_cfgs_from_yaml(
             data["custom_form_fields"] = data.get("custom_form_fields", []) + (
                 custom_form_fields or []
             )
-            configs[prefix] = ResourceConfig.model_validate(data, extra="ignore")
+            configs[prefix] = ResourceConfig.model_validate_logging(
+                data, extra="ignore"
+            )
 
     return configs
 
@@ -121,13 +123,13 @@ def create_db_engine(
 def init_dbs_and_bundles(
     resource_configs: dict[str, ResourceConfig],
     request_classes: dict[str, type[ReservationRequest]],
-    sqlite_db_path: DirectoryPath,
+    sqlite_dir: DirectoryPath,
     db_echo: bool = False,
 ) -> dict[str, ResourceBundle]:
     bundles: dict[str, ResourceBundle] = {}
 
     for prefix, cfg in resource_configs.items():
-        engine = create_db_engine(sqlite_db_path, prefix, db_echo)
+        engine = create_db_engine(sqlite_dir, prefix, db_echo)
         session_factory = create_session_factory(engine)
         database = ReservationDatabase(session_factory, engine.dispose)
         bundles[prefix] = ResourceBundle(cfg, request_classes[prefix], database)
@@ -160,7 +162,10 @@ async def app_lifespan(app: FastAPI, sqlite_db_path: DirectoryPath):
             bundle.database.dispose()
 
 
-def build_calendar_embed_url(config: ResourceConfig, timezone: ZoneInfo) -> str:
+def build_calendar_embed_url(config: ResourceConfig, timezone: ZoneInfo) -> str | None:
+    if not config.calendar_shown_final:
+        return None
+
     base = "https://calendar.google.com/calendar/embed?"
     params = {
         "title": config.resource_name,

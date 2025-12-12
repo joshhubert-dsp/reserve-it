@@ -4,6 +4,7 @@ from pydantic import EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+# TODO add all free-floating args to this class, allow instantiating from yaml file
 class AppConfig(BaseSettings):
     """Global app configuration model, automatically loaded from environment variables with
     the same names as the args (case-insensitive).

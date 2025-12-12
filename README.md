@@ -47,6 +47,15 @@ minutes_before_reminder: 60
 maximum_days_ahead: 14
 # users can choose whether they're willing to share a resource with others
 allow_shareable: true
+
+# image displayed on form webpage
+image:
+  {
+    path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
+    caption: court map,
+    pixel_width: 800,
+  }
+
 ```
 
 3. Write a simple python script to define custom form inputs, validation, and resource

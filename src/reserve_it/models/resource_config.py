@@ -1,26 +1,36 @@
 from datetime import time
 from functools import cached_property
-from typing import Annotated, Self
+from pathlib import Path
+from typing import Self
 
 from loguru import logger
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    StringConstraints,
     ValidationError,
     model_validator,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from reserve_it.models.field_types import AmPmTime, HtmlFormInputType, PositiveInt
+from reserve_it.models.field_types import (
+    AmPmTime,
+    HexColor,
+    HtmlFormInputType,
+    PositiveInt,
+)
 
-HexColor = Annotated[str, StringConstraints(pattern=r"^#[0-9A-Fa-f]{6}$")]
+MAX_CALENDARS_SHOWN = 4
+"""If a resource has more than this many calendars, the combined reservation Google calendar
+view won't be shown on the form webpage. It'd be too hectic and not add value for the user."""
 
 
 class CalendarInfo(BaseModel):
+    """color can be omitted from the yaml dict, it will not be used if a resource has more than 4 calendars
+    (since the calendars won't be shown)"""
+
     id: str
-    color: HexColor
+    color: HexColor | None = None
 
 
 class CustomFormField(BaseModel):
@@ -44,6 +54,28 @@ class CustomFormField(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
+class ImageFile(BaseModel):
+    """Bundle of info for an image to display on a reservation webpage. Uses the image's
+    actual dimensions if not specified. If both pixel_width and pixel_height are None,
+    then the rendered image uses the original image's actual dimensions. If only one of them is
+    None, then the rendered image keeps the original image's aspect ratio.
+
+    Args:
+        path (Path): Image absolute filepath. File must be nested directly under
+            `image_dir` path passed to `build_app()`.
+        caption (str, optional): Caption to display for the image. Defaults to "".
+        pixel_width (int | None , optional): Desired pixel width for the displayed image.
+            Defaults to None. See above for behavior details.
+        pixel_height (int | None , optional): Desired pixel height for the displayed image.
+            Defaults to None. See above for behavior details.
+    """
+
+    path: Path
+    caption: str = ""
+    pixel_width: int | None = None
+    pixel_height: int | None = None
+
+
 class ResourceConfig(BaseSettings):
     """Base reservation configuration model. Works as is, or subclass to add extras.
     Encapsulates as many individual calendars as you put in the calendars dict,
@@ -61,33 +93,38 @@ class ResourceConfig(BaseSettings):
             the empty string to avoid an unnecessary extra url path component.
         resource_name (str): the webpage title for this resources.
         calendars (dict[str, CalendarInfo]): dict of "calendar short name" to
-            CalendarInfos for each individual calendar.
-        day_start_time (AmPmTime): The beginning of the day for a resource. Defaults to
+            CalendarInfos for each individual calendar. If more than 4 calendars are
+            included
+        day_start_time (AmPmTime, optional): The beginning of the day for a resource. Defaults to
             12:00 AM.
-        day_end_time (AmPmTime): The end of the day for a resource. Defaults to
+        day_end_time (AmPmTime, optional): The end of the day for a resource. Defaults to
             11:59 PM.
-        minutes_increment (int): Positive integer, the increment between allowed
+        minutes_increment (int, optional): Positive integer, the increment between allowed
             start/end time slots. Defaults to 30.
-        maximum_minutes (int): Positive integer, the maximum number of minutes allowed
+        maximum_minutes (int, optional): Positive integer, the maximum number of minutes allowed
             for a reservation. Must be a multiple of minutes_increment. Defaults to 120.
-        maximum_days_ahead (int | None): Positive integer, how many days ahead the user
+        maximum_days_ahead (int | None, optional): Positive integer, how many days ahead the user
             can reserve this resource. If None, reservations can be made for any time
             in the future. Defaults to 14.
-        minutes_before_reminder (int): Positive integer, how many minutes before the
+        minutes_before_reminder (int, optional): Positive integer, how many minutes before the
             event to send an email reminder to the user, if they've selected to receive
             one.
-        allow_end_next_day (bool): Include the checkbox for making a reservation end time
+        allow_end_next_day (bool, optional): Include the checkbox for making a reservation end time
             the next day. Should be enabled if overnight reservations are allowed.
             Defaults to False.
-        allow_shareable (bool): Include the checkbox for the user to note that they're
+        allow_shareable (bool, optional): Include the checkbox for the user to note that they're
             willing to share a resource. Should only be enabled for a resource that can
             be shared. Defaults to False.
-        emoji (str): emoji symbol to append to the title. Defaults to ''.
-        description (str): descriptive sub-heading for the resource page. Defaults to ''.
-        custom_form_fields (list[CustomFormField]): custom html form input fields to add
+        emoji (str, optional): emoji symbol to append to the form page title. Defaults to ''.
+        description (str, optional): descriptive sub-heading for the resource page. Defaults to ''.
+        custom_form_fields (list[CustomFormField], optional): custom html form input fields to add
             for the resource page. Defaults to empty list.
-
-
+        calendar_shown (bool, optional): If False, force the embedded Google calendar
+            view to be omitted from the form page. The calendar view will also be
+            omitted if the resource has more than 4 calendars, to avoid visual clutter.
+            Defaults to True.
+        image (ImageFile | None, optiona): Bundle object for image to display on
+            the webpage. Defaults to None.
     """
 
     file_prefix: str
@@ -105,6 +142,8 @@ class ResourceConfig(BaseSettings):
     emoji: str = ""
     description: str = ""
     custom_form_fields: list[CustomFormField] = Field(default_factory=list)
+    calendar_shown: bool = True
+    image: ImageFile | None = None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -116,7 +155,7 @@ class ResourceConfig(BaseSettings):
 
     @model_validator(mode="after")
     def maximum_minutes_is_multiple(self) -> Self:
-        if self.maximum_minutes % self.minutes_increment:
+        if self.maximum_minutes % self.minutes_increment != 0:
             raise ValueError("maximum_minutes must be a multiple of minutes_increment.")
         return self
 
@@ -124,6 +163,10 @@ class ResourceConfig(BaseSettings):
     def calendar_ids(self) -> dict[str, str]:
         """dict[cal_id, event_label], this ends up being useful."""
         return {cal.id: label for label, cal in self.calendars.items()}
+
+    @cached_property
+    def calendar_shown_final(self) -> bool:
+        return len(self.calendars) <= MAX_CALENDARS_SHOWN and self.calendar_shown
 
     @classmethod
     def model_validate_logging(cls, obj: dict, *, context=None, **kwargs):
@@ -136,5 +179,5 @@ class ResourceConfig(BaseSettings):
             logger.error(
                 f"Error loading ResourceConfig for resource '{obj['route_prefix']}': {e}"
             )
-            # Kill the process cleanly; uvicorn etc will just see a non-zero exit
+            # Kill the process cleanly; uvicorn will just see a non-zero exit
             raise SystemExit(1) from e

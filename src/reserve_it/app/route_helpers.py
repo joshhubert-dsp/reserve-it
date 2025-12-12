@@ -46,21 +46,15 @@ async def get_form(request: Request, config: ResourceConfig):
         "form.html",
         {
             "request": request,
-            "route_prefix": config.route_prefix,
-            "resource_name": config.resource_name,
-            "emoji": config.emoji,
-            "description": config.description,
+            "config": config,
             "custom_form_fields": [
                 model.model_dump(mode="json") for model in config.custom_form_fields
             ],
             "today": date.today().isoformat(),
-            "minutes_before_reminder": config.minutes_before_reminder,
             "calendar_embed_url": build_calendar_embed_url(
                 config, get_timezone(request)
             ),
             "time_slots": time_slots,
-            "allow_end_next_day": config.allow_end_next_day,
-            "allow_shareable": config.allow_shareable,
         },
     )
 

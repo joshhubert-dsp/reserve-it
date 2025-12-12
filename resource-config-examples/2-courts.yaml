@@ -25,3 +25,11 @@ allow_shareable: true
 # arbitrary extra fields can be defined per resource, these are made available for
 # validation by defining a resource-specific custom ReservationRequest subclass
 custom_form_fields: [{ type: number, name: ntrp, label: NTRP Rating, required: True }]
+
+# image displayed on form webpage
+image:
+  {
+    path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
+    caption: court map,
+    pixel_width: 800,
+  }

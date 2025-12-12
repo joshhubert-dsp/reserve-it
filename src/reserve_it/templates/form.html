@@ -1,6 +1,6 @@
 {% extends "base.html" %} 
 
-{% block title %} {{resource_name}} Reservation {% endblock %}
+{% block title %} {{config.resource_name}} Reservation {% endblock %}
 
 {% block custom_style %}
 <!-- invert calendar colors when <html> has class="dark" -->
@@ -45,12 +45,12 @@
 </style>
 {% endblock %}
 
-{% block heading %} {{emoji}} {{resource_name}} Reservation {% endblock %} 
+{% block heading %} {{config.emoji}} {{config.resource_name}} Reservation {% endblock %} 
 
-{% block description %} {{description}} {% endblock %}
+{% block description %} {{config.description}} {% endblock %}
 
 {% block custom_nav %}
-{% if route_prefix %}
+{% if config.route_prefix %}
 <a href="/" title="Go home." class="top-button">
     <span aria-hidden="true">🏠</span>
 </a>
@@ -76,7 +76,7 @@
                 name="email"
                 id="email"
                 class="reservation-box"
-                title="You'll receive a confirmation email (Google Calendar invitation) upon successful reservation and a reminder email {{minutes_before_reminder}} minutes before."
+                title="You'll receive a confirmation email (Google Calendar invitation) upon successful reservation and a reminder email {{config.minutes_before_reminder}} minutes before."
                 required
             />
         </div>
@@ -141,7 +141,7 @@
             </select>
         </div>
 
-        {% if allow_end_next_day %}
+        {% if config.allow_end_next_day %}
             <div class="flex flex-col items-start gap-1 md:self-end">
                 <label for="end_next_day" class="reservation-field"> next day </label>
                 <input
@@ -154,7 +154,7 @@
             </div>
         {% endif %}
 
-        {% if allow_shareable %}
+        {% if config.allow_shareable %}
             <div class="flex flex-col items-start gap-1 md:self-end">
                 <label for="shareable" class="reservation-field"> ok to share </label>
                 <input
@@ -173,14 +173,14 @@
                 name="reminder"
                 id="reminder"
                 class="check-box"
-                title="Check this box to receive a reminder email before your reservation, if reserving more than {{minutes_before_reminder}} minutes ahead."
+                title="Check this box to receive a reminder email before your reservation, if reserving more than {{config.minutes_before_reminder}} minutes ahead."
             />
         </div>
 
         <div class="flex gap-2 md:self-end">
             <button
                 type="button"
-                hx-post="{{ route_prefix }}/reserve"
+                hx-post="{{ config.route_prefix }}/reserve"
                 hx-target="#result"
                 hx-swap="innerHTML"
                 hx-include="#reservation-form"
@@ -192,7 +192,7 @@
             
             <button
                 type="button"
-                hx-post="{{ route_prefix }}/cancel"
+                hx-post="{{ config.route_prefix }}/cancel"
                 hx-target="#result"
                 hx-swap="innerHTML"
                 hx-include="#reservation-form"
@@ -205,7 +205,24 @@
     </form>
 </div>
 
+<!-- OPTIONAL IMAGE -->
+{% if config.image %}
+<div class="card">
+    <div class="flex justify-center">
+        <img
+            src="{{ url_for('images', path=config.image.path.name) }}"
+            title="{{ config.image.path.name }}"
+            alt="{{ config.image.caption }}"
+            width="{{ config.image.pixel_width or '' }}"
+            height="{{ config.image.pixel_height or '' }}"
+            class="mx-auto"
+        >
+    </div>
+</div>
+{% endif %}
+
 <!-- CALENDAR -->
+{% if calendar_embed_url %}
 <div class="card flex-1 overflow-hidden h-[80vh]">
     <div id=calendar-wrapper class="calendar-style">
         <iframe
@@ -215,5 +232,6 @@
         ></iframe>
     </div>
 </div>
+{% endif %}
 
 {% endblock %}

@@ -76,7 +76,7 @@ class ReservationRequest(BaseModel):
             minutes = (self.end_dt - self.start_dt).total_seconds() // 60
             if minutes > max_minutes:
                 raise ValueError(
-                    "A reservation for this resource can't longer than "
+                    "A reservation for this resource can't be longer than "
                     + (
                         f"{max_minutes} minutes."
                         if max_minutes < 120

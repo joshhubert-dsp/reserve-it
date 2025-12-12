@@ -1,7 +1,7 @@
 from datetime import datetime, time
 from typing import Annotated, Any, Literal
 
-from pydantic import BeforeValidator, Field
+from pydantic import BeforeValidator, Field, StringConstraints
 
 PositiveInt = Annotated[int, Field(gt=0)]
 
@@ -26,6 +26,7 @@ AmPmTime = Annotated[
     ),
 ]
 
+HexColor = Annotated[str, StringConstraints(pattern=r"^#[0-9A-Fa-f]{6}$")]
 
 HtmlFormInputType = Literal[
     "button",
