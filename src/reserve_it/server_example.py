@@ -24,19 +24,17 @@ class PasswordProtectedRequest(ReservationRequest):
         return self
 
 
-SRC_ROOT = Path(__file__).parents[3]
+PROJECT_ROOT = Path(__file__).parents[3]
 
 if __name__ == "__main__":
     app = build_app(
-        title="Reserve-It Form Server Example",
-        description="Form server for shared community amenity/resource reservations.",
-        resource_config_path=SRC_ROOT / "resource-config-examples",
-        sqlite_dir=SRC_ROOT / "sqlite_dbs",
-        gcal_cred_path=SRC_ROOT / "client_secret.json",
-        gcal_token_path=SRC_ROOT / "auth_token.json",
+        app_config=PROJECT_ROOT / "app-config-example.yaml",
+        resource_config_path=PROJECT_ROOT / "resource-config-examples",
+        sqlite_dir=PROJECT_ROOT / "sqlite_dbs",
+        gcal_cred_path=PROJECT_ROOT / "client_secret.json",
+        gcal_token_path=PROJECT_ROOT / "auth_token.json",
         custom_form_fields=PASSWORD_FIELD,
-        image_dir=SRC_ROOT / "resource-config-examples",
+        image_dir=PROJECT_ROOT / "resource-config-examples",
         request_classes=PasswordProtectedRequest,
-        version="0.1.0",
     )
     uvicorn.run(app, host="127.0.0.1", port=8000)

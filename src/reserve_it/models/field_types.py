@@ -1,7 +1,19 @@
 from datetime import datetime, time
+from pathlib import Path
 from typing import Annotated, Any, Literal
 
-from pydantic import BeforeValidator, Field, StringConstraints
+from pydantic import BeforeValidator, Field, FilePath, StringConstraints
+from pydantic.functional_validators import AfterValidator
+
+
+def must_be_yaml(p: Path) -> Path:
+    if p.suffix.lower() != ".yaml":
+        raise ValueError(f"'{p}' must be a .yaml file")
+    return p
+
+
+YamlPath = Annotated[FilePath, AfterValidator(must_be_yaml)]
+
 
 PositiveInt = Annotated[int, Field(gt=0)]
 

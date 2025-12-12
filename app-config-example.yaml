@@ -1,0 +1,6 @@
+title: Reserve-It Form Server Example
+description: Form server for shared community amenity/resource reservations.
+app_email: example@email.com
+timezone: America/Los_Angeles
+db_echo: True
+version: 0.1.0

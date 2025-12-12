@@ -74,17 +74,14 @@ def load_resource_cfgs_from_yaml(
         prefix = re.sub(LEADING_INT_PATTERN, "", path.stem)
         prefix = re.sub(LEADING_DASH_PATTERN, "", prefix)
 
-        with path.open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
-            data["file_prefix"] = prefix
-            data["route_prefix"] = f"/{prefix}" if len(config_file_paths) > 1 else ""
-            # update with global custom form fields if passed
-            data["custom_form_fields"] = data.get("custom_form_fields", []) + (
-                custom_form_fields or []
-            )
-            configs[prefix] = ResourceConfig.model_validate_logging(
-                data, extra="ignore"
-            )
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        data["file_prefix"] = prefix
+        data["route_prefix"] = f"/{prefix}" if len(config_file_paths) > 1 else ""
+        # update with global custom form fields if passed
+        data["custom_form_fields"] = data.get("custom_form_fields", []) + (
+            custom_form_fields or []
+        )
+        configs[prefix] = ResourceConfig.model_validate_cleanly(data, extra="ignore")
 
     return configs
 

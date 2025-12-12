@@ -169,7 +169,7 @@ class ResourceConfig(BaseSettings):
         return len(self.calendars) <= MAX_CALENDARS_SHOWN and self.calendar_shown
 
     @classmethod
-    def model_validate_logging(cls, obj: dict, *, context=None, **kwargs):
+    def model_validate_cleanly(cls, obj: dict, *, context=None, **kwargs):
         """model_validate overload that adds helpful error log for determining which
         resource config is bad in the case of many resources
         """

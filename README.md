@@ -23,7 +23,18 @@ All it takes to build a resource reservation system website for your organizatio
 1. Make a dedicated Google account for your organization, and a Google calendar for each
    reservable resource.
 
-2. Create a folder of yaml files, one for each set of resources, like this:
+2. Create an app config yaml file, like this:
+
+```yaml
+title: Reserve-It Form Server Example
+description: Form server for shared community amenity/resource reservations.
+app_email: example@email.com
+timezone: America/Los_Angeles
+db_echo: True
+version: 0.1.0
+```
+
+3. Create a folder of resource reservation config yaml files, one for each set of resources, like this:
 
 ```yaml
 resource_name: Tennis Courts
@@ -55,10 +66,9 @@ image:
     caption: court map,
     pixel_width: 800,
   }
-
 ```
 
-3. Write a simple python script to define custom form inputs, validation, and resource
+4. Write a simple python script to define custom form inputs, validation, and resource
    paths, and build the app:
 
 ```python
@@ -88,26 +98,25 @@ class PasswordProtectedRequest(ReservationRequest):
         return self
 
 
-SRC_ROOT = Path(__file__).parents[3]
+PROJECT_ROOT = Path(__file__).parents[3]
 
 
 if __name__ == "__main__":
     app = build_app(
-        title="Reserve-It Form Server Example",
-        description="Form server for shared community amenity/resource reservations.",
-        resource_config_path=SRC_ROOT / "resource-config-examples",
-        sqlite_db_path=SRC_ROOT / "sqlite_dbs",
-        gcal_cred_path=SRC_ROOT / "client_secret.json",
-        gcal_token_path=SRC_ROOT / "auth_token.json",
+        app_config=PROJECT_ROOT / "app-config-example.yaml",
+        resource_config_path=PROJECT_ROOT / "resource-config-examples",
+        sqlite_dir=PROJECT_ROOT / "sqlite_dbs",
+        gcal_cred_path=PROJECT_ROOT / "client_secret.json",
+        gcal_token_path=PROJECT_ROOT / "auth_token.json",
         custom_form_fields=PASSWORD_FIELD,
+        image_dir=PROJECT_ROOT / "resource-config-examples",
         request_classes=PasswordProtectedRequest,
-        version="0.1.0",
     )
     uvicorn.run(app, host="127.0.0.1", port=8000)
 
 ```
 
-4. Host the app somewhere accessible to your community, and disseminate any shared
+5. Host the app somewhere accessible to your community, and disseminate any shared
    passwords/validation information through communication channels.
 
 ## Features
