@@ -34,11 +34,11 @@ class ReservationDatabase:
         self._session_factory = session_factory
         self._dispose_callback = dispose_callback
 
-    def has_pending_reservation(self, email: str, now: datetime) -> bool:
+    def has_pending_reservation(self, email: str) -> bool:
         with self._session_factory() as session:
             statement = select(Reservation).where(
                 Reservation.email == email,
-                Reservation.end_dt > now,
+                Reservation.end_dt > datetime.now(),
             )
             return session.exec(statement).one_or_none() is not None
 

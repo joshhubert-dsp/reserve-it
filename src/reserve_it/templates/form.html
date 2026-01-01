@@ -221,7 +221,7 @@
 </div>
 {% endif %}
 
-<!-- CALENDAR -->
+<!--OPTIONAL CALENDAR -->
 {% if calendar_embed_url %}
 <div class="card flex-1 overflow-hidden h-[80vh]">
     <div id=calendar-wrapper class="calendar-style">
@@ -232,6 +232,25 @@
         ></iframe>
     </div>
 </div>
+{% endif %}
+
+<!-- OPTIONAL CONTACT EMAIL -->
+{% if config.contact_email %}
+<p> 
+    Contact 
+
+    <button
+    type="button"
+    class="inline bg-none border-none text-blue-500 underline cursor-pointer hover:text-blue-700"
+    onclick="navigator.clipboard.writeText(this.textContent)"
+    >
+        {{ config.contact_email }}
+    </button>
+
+    to report issues (click to copy). 
+</p>
+
+
 {% endif %}
 
 {% endblock %}

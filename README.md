@@ -26,19 +26,32 @@ All it takes to build a resource reservation system website for your organizatio
 2. Create an app config yaml file, like this:
 
 ```yaml
+# FastAPI app title, also used for home page title if multiple resources are configured
 title: Reserve-It Form Server Example
+# FastAPI app description, also used for home page subtitle if multiple resources are
+# configured
 description: Form server for shared community amenity/resource reservations.
-app_email: example@email.com
-timezone: America/Los_Angeles
-db_echo: True
+# app version
 version: 0.1.0
+# app email address that users receive confirmation/reminder emails from
+app_email: app@email.com
+# timezone used by all calendars
+timezone: America/Los_Angeles
+# optional, defines a password form field that is added to all resource reservation webpages
+custom_form_fields:
+    [{ type: password, name: password, label: Password, required: True }]
+# optional, email address that users can contact to report issues
+contact_email: contact@email.com
 ```
 
 3. Create a folder of resource reservation config yaml files, one for each set of resources, like this:
 
 ```yaml
+# resource page title
 resource_name: Tennis Courts
+# displayed along with title
 emoji: 🎾
+# resource page subtitle
 description: Love is nothing.
 # the google calendar ids for each individual tennis court
 calendars:
@@ -87,7 +100,7 @@ PASSWORD_FIELD = CustomFormField(
     type="password", name="password", label="Password", required=True
 )
 
-# This subclass handles password validation
+# This subclass handles password validation, from the password field defined in
 class PasswordProtectedRequest(ReservationRequest):
     password: str
 

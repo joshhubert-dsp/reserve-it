@@ -114,7 +114,7 @@ async def submit_reservation(
 
     # TODO email verification if first time this email is seen
 
-    if database.has_pending_reservation(reserv_request.email, datetime.now()):
+    if database.has_pending_reservation(reserv_request.email):
         return denial_response(
             request,
             "This email already has an upcoming reservation. Check for a prior email "

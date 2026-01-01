@@ -7,15 +7,13 @@ from pydantic.functional_validators import AfterValidator
 
 
 def must_be_yaml(p: Path) -> Path:
-    if p.suffix.lower() != ".yaml":
-        raise ValueError(f"'{p}' must be a .yaml file")
+    if p.suffix.lower() != ".yaml" and p.suffix.lower() != ".yml":
+        raise ValueError(f"'{p}' must be a yaml file")
     return p
 
 
 YamlPath = Annotated[FilePath, AfterValidator(must_be_yaml)]
 
-
-PositiveInt = Annotated[int, Field(gt=0)]
 
 AM_PM_TIME_FORMAT = "%I:%M %p"
 

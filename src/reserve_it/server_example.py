@@ -5,12 +5,7 @@ from typing import Self
 import uvicorn
 from pydantic import model_validator
 
-from reserve_it import CustomFormField, ReservationRequest, build_app
-
-# This defines a password form field that is added to all resource reservation webpages
-PASSWORD_FIELD = CustomFormField(
-    type="password", name="password", label="Password", required=True
-)
+from reserve_it import ReservationRequest, build_app
 
 
 # This subclass handles password validation
@@ -33,7 +28,6 @@ if __name__ == "__main__":
         sqlite_dir=PROJECT_ROOT / "sqlite_dbs",
         gcal_cred_path=PROJECT_ROOT / "client_secret.json",
         gcal_token_path=PROJECT_ROOT / "auth_token.json",
-        custom_form_fields=PASSWORD_FIELD,
         image_dir=PROJECT_ROOT / "resource-config-examples",
         request_classes=PasswordProtectedRequest,
     )

@@ -1,5 +1,8 @@
+# resource page title
 resource_name: EV Chargers
+# displayed along with title
 emoji: ⚡️
+# resource page subtitle
 description: EV1 is the charger on the left, EV2 is the one on the right. You'll automatically be assigned to whichever is free.
 # the google calendar ids for each individual EV charger
 calendars:

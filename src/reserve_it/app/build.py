@@ -32,7 +32,7 @@ from reserve_it.app.utils import (
 from reserve_it.models.app_config import AppConfig
 from reserve_it.models.field_types import YamlPath
 from reserve_it.models.reservation_request import ReservationRequest
-from reserve_it.models.resource_config import CustomFormField, ResourceConfig
+from reserve_it.models.resource_config import ResourceConfig
 
 
 @dataclass
@@ -51,7 +51,6 @@ def build_app(
     sqlite_dir: DirectoryPath,
     gcal_cred_path: FilePath,
     gcal_token_path: FilePath | None = None,
-    custom_form_fields: CustomFormField | list[CustomFormField] | None = None,
     image_dir: DirectoryPath | None = None,
     request_classes: (
         type[ReservationRequest] | dict[str, type[ReservationRequest]]
@@ -76,10 +75,6 @@ def build_app(
             save the refresh token and temporary auth token to on first authenticating
             your credentials, to reduce token churn. If passed, the token is automatically
             refreshed if expired. Defaults to None, in which case no tokens are saved.
-        custom_form_fields (CustomFormField | list[CustomFormField] | None, optional):
-            Custom html input form field(s) you want to add to all your resource
-            reservation webpages. Note that custom form fields for individual resources
-            should be defined in their respective yaml files. Defaults to None.
         image_dir (DirectoryPath | None, optional): Path to a folder where images you
             want to display on reservation webpages are stored, to be mounted to the
             app. These can be helpful diagrams or just pretty pictures, whatever your
@@ -94,14 +89,13 @@ def build_app(
             model class.
 
     Returns:
-        FastAPI: The FastAPI web app instance for your app.
+        FastAPI: The FastAPI instance for your app.
     """
     if isinstance(app_config, Path):
         app_config = AppConfig.from_yaml(app_config)
 
     dependencies = _initialize_dependencies(
         resource_config_path,
-        custom_form_fields,
         request_classes,
         sqlite_dir,
         app_config,
@@ -133,18 +127,13 @@ def build_app(
 
 def _initialize_dependencies(
     resource_config_path: DirectoryPath | FilePath,
-    custom_form_fields: CustomFormField | list[CustomFormField] | None,
     request_classes: type[ReservationRequest] | dict[str, type[ReservationRequest]],
     sqlite_dir: DirectoryPath,
     app_config: AppConfig,
     gcal_cred_path: FilePath,
     gcal_token_path: FilePath | None,
 ) -> AppDependencies:
-    if isinstance(custom_form_fields, CustomFormField):
-        custom_form_fields = [custom_form_fields]
-    resource_configs = load_resource_cfgs_from_yaml(
-        resource_config_path, custom_form_fields
-    )
+    resource_configs = load_resource_cfgs_from_yaml(resource_config_path, app_config)
     if not resource_configs:
         raise ValueError(
             "you didn't create any resource config yaml files, or provided the wrong "

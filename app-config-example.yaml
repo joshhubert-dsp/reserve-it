@@ -1,6 +1,16 @@
+# FastAPI app title, also used for home page title if multiple resources are configured
 title: Reserve-It Form Server Example
+# FastAPI app description, also used for home page subtitle if multiple resources are
+# configured
 description: Form server for shared community amenity/resource reservations.
-app_email: example@email.com
-timezone: America/Los_Angeles
-db_echo: True
+# app version
 version: 0.1.0
+# app email address that users receive confirmation/reminder emails from
+app_email: app@email.com
+# timezone used by all calendars
+timezone: America/Los_Angeles
+# optional, defines a password form field that is added to all resource reservation webpages
+custom_form_fields:
+  [{ type: password, name: password, label: Password, required: True }]
+# optional, email address that users can contact to report issues
+contact_email: contact@email.com

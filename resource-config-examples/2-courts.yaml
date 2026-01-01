@@ -1,5 +1,8 @@
+# resource page title
 resource_name: Tennis Courts
+# displayed along with title
 emoji: 🎾
+# resource page subtitle
 description: Love is nothing.
 # the google calendar ids for each individual tennis court
 calendars:

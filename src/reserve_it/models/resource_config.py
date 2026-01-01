@@ -7,7 +7,9 @@ from loguru import logger
 from pydantic import (
     BaseModel,
     ConfigDict,
+    EmailStr,
     Field,
+    PositiveInt,
     ValidationError,
     model_validator,
 )
@@ -17,7 +19,6 @@ from reserve_it.models.field_types import (
     AmPmTime,
     HexColor,
     HtmlFormInputType,
-    PositiveInt,
 )
 
 MAX_CALENDARS_SHOWN = 4
@@ -76,6 +77,16 @@ class ImageFile(BaseModel):
     pixel_height: int | None = None
 
 
+DEFAULT_TO_APP_CONFIG_FIELDS = (
+    "maximum_days_ahead",
+    "minutes_before_reminder",
+    "calendar_shown",
+    "contact_email",
+)
+"""These fields are duplicated between both AppConfig and ResourceConfig models. When a
+resource config yaml file is parsed, if any of these fields are not specified,  app if"""
+
+
 class ResourceConfig(BaseSettings):
     """Base reservation configuration model. Works as is, or subclass to add extras.
     Encapsulates as many individual calendars as you put in the calendars dict,
@@ -103,12 +114,6 @@ class ResourceConfig(BaseSettings):
             start/end time slots. Defaults to 30.
         maximum_minutes (int, optional): Positive integer, the maximum number of minutes allowed
             for a reservation. Must be a multiple of minutes_increment. Defaults to 120.
-        maximum_days_ahead (int | None, optional): Positive integer, how many days ahead the user
-            can reserve this resource. If None, reservations can be made for any time
-            in the future. Defaults to 14.
-        minutes_before_reminder (int, optional): Positive integer, how many minutes before the
-            event to send an email reminder to the user, if they've selected to receive
-            one.
         allow_end_next_day (bool, optional): Include the checkbox for making a reservation end time
             the next day. Should be enabled if overnight reservations are allowed.
             Defaults to False.
@@ -117,14 +122,25 @@ class ResourceConfig(BaseSettings):
             be shared. Defaults to False.
         emoji (str, optional): emoji symbol to append to the form page title. Defaults to ''.
         description (str, optional): descriptive sub-heading for the resource page. Defaults to ''.
-        custom_form_fields (list[CustomFormField], optional): custom html form input fields to add
-            for the resource page. Defaults to empty list.
-        calendar_shown (bool, optional): If False, force the embedded Google calendar
-            view to be omitted from the form page. The calendar view will also be
-            omitted if the resource has more than 4 calendars, to avoid visual clutter.
-            Defaults to True.
         image (ImageFile | None, optiona): Bundle object for image to display on
             the webpage. Defaults to None.
+        custom_form_fields (list[CustomFormField], optional): custom html form input fields to add
+            for the resource page. Defaults to empty list.
+        maximum_days_ahead (int | None, optional): Positive integer, how many days ahead the user
+            can reserve this resource. If None, reservations can be made for any time
+            in the future. Overrides the value defined in app config file, if present.
+            Defaults to 14.
+        minutes_before_reminder (int, optional): Positive integer, how many minutes
+            before the reservation to send an email reminder to the user, if they've
+            selected to receive one. Overrides the value defined in app config file, if
+            present. Defaults to 60.
+        calendar_shown (bool, optional): If False, omit the embedded Google calendar
+            from the form page. The calendar view will also be omitted if the resource
+            has more than 4 calendars, to avoid visual clutter. Overrides the value
+            defined in app config file, if present. Defaults to True.
+        contact_email (str, optional): A contact email address for user issues, listed
+            on this reservation page, if desired. Overrides the value defined in app
+            config file, if present. Defaults to None.
     """
 
     file_prefix: str
@@ -135,15 +151,20 @@ class ResourceConfig(BaseSettings):
     day_end_time: AmPmTime = Field(default_factory=lambda: time(hour=23, minute=59))
     minutes_increment: PositiveInt = 30
     maximum_minutes: PositiveInt = 120
-    maximum_days_ahead: PositiveInt | None = 14
-    minutes_before_reminder: PositiveInt = 60
     allow_end_next_day: bool = False
     allow_shareable: bool = False
     emoji: str = ""
     description: str = ""
-    custom_form_fields: list[CustomFormField] = Field(default_factory=list)
-    calendar_shown: bool = True
     image: ImageFile | None = None
+    # fields that can also be specified globally in app-config file, and which are merged
+    custom_form_fields: list[CustomFormField] = Field(default_factory=list)
+    # fields that can also be specified globally in app-config file, and which override
+    # app-config when present in resource-config. The effective default values are
+    # defined in AppConfig model.
+    maximum_days_ahead: PositiveInt | None
+    minutes_before_reminder: PositiveInt
+    calendar_shown: bool
+    contact_email: EmailStr | None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

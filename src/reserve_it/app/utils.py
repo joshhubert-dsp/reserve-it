@@ -1,6 +1,7 @@
 import asyncio
 import re
 from dataclasses import dataclass
+from itertools import chain
 from pathlib import Path
 from time import time
 from typing import cast
@@ -25,8 +26,12 @@ from sqlmodel import SQLModel, create_engine
 from reserve_it.app.database import ReservationDatabase, create_session_factory
 from reserve_it.app.reminders import ReminderService
 from reserve_it.models.app_config import AppConfig
+from reserve_it.models.field_types import must_be_yaml
 from reserve_it.models.reservation_request import ReservationRequest
-from reserve_it.models.resource_config import CustomFormField, ResourceConfig
+from reserve_it.models.resource_config import (
+    DEFAULT_TO_APP_CONFIG_FIELDS,
+    ResourceConfig,
+)
 
 LEADING_INT_PATTERN = re.compile(r"^\d+")
 LEADING_DASH_PATTERN = re.compile(r"^-")
@@ -53,17 +58,16 @@ class ResourceBundle:
 
 
 def load_resource_cfgs_from_yaml(
-    yaml_path: Path, custom_form_fields: list[CustomFormField] | None
+    yaml_path: Path, app_config: AppConfig
 ) -> dict[str, ResourceConfig]:
     configs: dict[str, ResourceConfig] = {}
 
     if yaml_path.is_dir():
-        config_file_paths = list(yaml_path.glob("*.yaml"))
+        config_file_paths = list(
+            chain(yaml_path.glob("*.yaml"), yaml_path.glob("*.yml"))
+        )
     else:  # has to be an existing file
-        if not yaml_path.suffix == ".yaml":
-            raise ValueError(
-                "yaml_path must be a path to a directory of .yaml files or a single .yaml file"
-            )
+        must_be_yaml(yaml_path)
         config_file_paths = [yaml_path]
 
     # sort by file names to allow explicit ordering with "1-name1", "2-name2", etc
@@ -79,8 +83,11 @@ def load_resource_cfgs_from_yaml(
         data["route_prefix"] = f"/{prefix}" if len(config_file_paths) > 1 else ""
         # update with global custom form fields if passed
         data["custom_form_fields"] = data.get("custom_form_fields", []) + (
-            custom_form_fields or []
+            app_config.custom_form_fields
         )
+        for field in DEFAULT_TO_APP_CONFIG_FIELDS:
+            if field not in data:
+                data[field] = getattr(app_config, field)
         configs[prefix] = ResourceConfig.model_validate_cleanly(data, extra="ignore")
 
     return configs
