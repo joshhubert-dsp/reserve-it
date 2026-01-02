@@ -13,13 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with:
-          # force a full checkout for proper git history and don't save the credentials for future steps to steal
-          persist-credentials: false
-          fetch-depth: 0
-          ref: refs/heads/${{ github.head_ref }}
+        # with:
+        #   # force a full checkout for proper git history and don't save the credentials for future steps to steal
+        #   persist-credentials: false
+        #   fetch-depth: 0
+        #   ref: refs/heads/${{ github.head_ref }}
 
-      - uses: dineshsonachalam/markdown-autodocs@v1.0.7
+      - name: Markdown autodocs
+        uses: dineshsonachalam/markdown-autodocs@v1.0.7
         with:
           commit_message: built README with source includes
           output_file_paths: "[./README.md]"
