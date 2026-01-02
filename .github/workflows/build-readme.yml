@@ -4,22 +4,37 @@ on:
   push:
     branches:
       - main
+
+    # paths-ignore:
+    #   - README.md
   pull_request:
     branches:
       - main
+    # paths-ignore:
+    #   - README.md
 
 jobs:
   build:
+    if: github.actor != 'trusty-pushbot[bot]'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        # with:
-        #   # force a full checkout for proper git history and don't save the credentials for future steps to steal
-        #   persist-credentials: false
-        #   fetch-depth: 0
-        #   ref: refs/heads/${{ github.head_ref }}
+      - name: Create GitHub App token
+        uses: actions/create-github-app-token@v2.2.1
+        id: app-token
+        with:
+          app-id: ${{ secrets.TRUSTY_PUSHBOT_ID }}
+          private-key: ${{ secrets.TRUSTY_PUSHBOT_PRIVATE_KEY }}
 
-      - name: Markdown autodocs
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          # force a full checkout for full git history
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+          # persist-credentials: false
+
+      - name: Run Markdown Autodocs
         uses: dineshsonachalam/markdown-autodocs@v1.0.7
         with:
           commit_message: updated README with source includes
