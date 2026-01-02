@@ -25,15 +25,124 @@ All it takes to build a resource reservation system website for your organizatio
 
 2.  Create an app config yaml file, like this:
     <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=app-config-example.yaml) -->
+    <!-- The below code snippet is automatically added from app-config-example.yaml -->
+    ```yaml
+    # FastAPI app title, also used for home page title if multiple resources are configured
+    title: Reserve-It Form Server Example
+    # FastAPI app description, also used for home page subtitle if multiple resources are
+    # configured
+    description: Form server for shared community amenity/resource reservations.
+    # app version
+    version: 0.1.0
+    # app email address that users receive confirmation/reminder emails from
+    app_email: app@email.com
+    # timezone used by all calendars
+    timezone: America/Los_Angeles
+    
+    # optional, defines a password form field that is added to all resource reservation webpages
+    custom_form_fields:
+      - type: password
+        name: password
+        label: Password
+        required: True
+    
+    # optional, email address that users can contact to report issues
+    contact_email: contact@email.com
+    ```
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 3.  Create a folder of resource reservation config yaml files, one for each set of resources, like this:
     <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=resource-config-examples/2-courts.yaml) -->
+    <!-- The below code snippet is automatically added from resource-config-examples/2-courts.yaml -->
+    ```yaml
+    # resource page title
+    resource_name: Tennis Courts
+    # displayed along with title
+    emoji: 🎾
+    # resource page subtitle
+    description: Love is nothing.
+    # the google calendar ids for each individual tennis court
+    calendars:
+      CourtA:
+        id: longhexstring1@group.calendar.google.com
+        color: "#AA0000"
+      CourtB:
+        id: longhexstring2@group.calendar.google.com
+        color: "#00AA00"
+      CourtC:
+        id: longhexstring3@group.calendar.google.com
+        color: "#0000AA"
+    
+    day_start_time: 8:00 AM
+    day_end_time: 8:00 PM
+    # the granularity of available reservations, here it's every hour from 8 to 8.
+    minutes_increment: 60
+    # the maximum allowed reservation length
+    maximum_minutes: 180
+    # users can choose whether to receive an email reminder
+    minutes_before_reminder: 60
+    # how far in advance users are allowed to make reservations
+    maximum_days_ahead: 14
+    # users can indicate whether they're willing to share a resource with others, adds a
+    # checkbox to the form if true
+    allow_shareable: true
+    
+    # arbitrary extra fields can be defined per resource, these are made available for
+    # validation by defining a resource-specific custom ReservationRequest subclass
+    custom_form_fields:
+      - type: number
+        name: ntrp
+        label: NTRP Rating
+        required: True
+    
+    # optional image displayed on form webpage
+    image:
+      path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
+      caption: court map
+      pixel_width: 800
+    ```
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 4.  Write a simple python script to define custom form inputs, validation, and resource
     paths, and build the app:
     <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=server_example.py) -->
+    <!-- The below code snippet is automatically added from server_example.py -->
+    ```py
+    import os
+    from pathlib import Path
+    from typing import Self
+    
+    import uvicorn
+    from pydantic import model_validator
+    
+    from reserve_it import ReservationRequest, build_app
+    
+    
+    # This subclass handles password validation, from the password field defined in
+    class PasswordProtectedRequest(ReservationRequest):
+        password: str
+    
+        @model_validator(mode="after")
+        def check_password(self) -> Self:
+            if self.password != os.getenv("PASSWORD"):
+                raise ValueError("Invalid input")
+            return self
+    
+    
+    PROJECT_ROOT = Path(__file__).parents[3]
+    
+    if __name__ == "__main__":
+        app = build_app(
+            app_config=PROJECT_ROOT / "app-config-example.yaml",
+            resource_config_path=PROJECT_ROOT / "resource-config-examples",
+            sqlite_dir=PROJECT_ROOT / "sqlite_dbs",
+            gcal_cred_path=PROJECT_ROOT / "client_secret.json",
+            gcal_token_path=PROJECT_ROOT / "auth_token.json",
+            image_dir=PROJECT_ROOT / "resource-config-examples",
+            request_classes=PasswordProtectedRequest,
+        )
+        uvicorn.run(app, host="127.0.0.1", port=8000)
+    ```
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 5.  Host the app somewhere accessible to your community, and disseminate any shared
