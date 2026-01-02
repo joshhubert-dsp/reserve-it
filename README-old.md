@@ -25,20 +25,107 @@ All it takes to build a resource reservation system website for your organizatio
 
 2. Create an app config yaml file, like this:
 
-    ```yaml:app-config-example.yaml
-
+    ```yaml
+    # FastAPI app title, also used for home page title if multiple resources are configured
+    title: Reserve-It Form Server Example
+    # FastAPI app description, also used for home page subtitle if multiple resources are
+    # configured
+    description: Form server for shared community amenity/resource reservations.
+    # app version
+    version: 0.1.0
+    # app email address that users receive confirmation/reminder emails from
+    app_email: app@email.com
+    # timezone used by all calendars
+    timezone: America/Los_Angeles
+    # optional, defines a password form field that is added to all resource reservation webpages
+    custom_form_fields:
+        [{ type: password, name: password, label: Password, required: True }]
+    # optional, email address that users can contact to report issues
+    contact_email: contact@email.com
     ```
 
 3. Create a folder of resource reservation config yaml files, one for each set of resources, like this:
 
-    ```yaml:resource-config-examples/2-courts.yaml
+    ```yaml
+    # resource page title
+    resource_name: Tennis Courts
+    # displayed along with title
+    emoji: 🎾
+    # resource page subtitle
+    description: Love is nothing.
+    # the google calendar ids for each individual tennis court
+    calendars:
+        { CourtA: { id: longhexstring1@group.calendar.google.com, color: "#AA0000" } }
+        { CourtB: { id: longhexstring2@group.calendar.google.com, color: "#00AA00" } }
+        { CourtC: { id: longhexstring3@group.calendar.google.com, color: "#0000AA" } }
 
+    day_start_time: 8:00 AM
+    day_end_time: 8:00 PM
+    # the granularity of available reservations, here it's every hour from 8 to 8.
+    minutes_increment: 60
+    # the maximum allowed reservation length
+    maximum_minutes: 180
+    # users can choose whether to receive an email reminder
+    minutes_before_reminder: 60
+    # how far in advance users are allowed to make reservations
+    maximum_days_ahead: 14
+    # users can choose whether they're willing to share a resource with others
+    allow_shareable: true
+
+    # image displayed on form webpage
+    image:
+      {
+        path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
+        caption: court map,
+        pixel_width: 800,
+      }
     ```
 
 4. Write a simple python script to define custom form inputs, validation, and resource
    paths, and build the app:
 
-    ```python:server_example.py
+    ```python
+    import os
+    from pathlib import Path
+    from typing import Self
+
+    import uvicorn
+    from pydantic import model_validator
+
+    from reserve_it import CustomFormField, ReservationRequest, build_app
+
+
+    # This defines a password form field that is added to all resource reservation webpages
+    PASSWORD_FIELD = CustomFormField(
+        type="password", name="password", label="Password", required=True
+    )
+
+    # This subclass handles password validation, from the password field defined in
+    class PasswordProtectedRequest(ReservationRequest):
+        password: str
+
+        @model_validator(mode="after")
+        def check_password(self) -> Self:
+            if self.password != os.getenv("PASSWORD"):
+                raise ValueError("Invalid input")
+            return self
+
+
+    PROJECT_ROOT = Path(__file__).parents[3]
+
+
+    if __name__ == "__main__":
+        app = build_app(
+            app_config=PROJECT_ROOT / "app-config-example.yaml",
+            resource_config_path=PROJECT_ROOT / "resource-config-examples",
+            sqlite_dir=PROJECT_ROOT / "sqlite_dbs",
+            gcal_cred_path=PROJECT_ROOT / "client_secret.json",
+            gcal_token_path=PROJECT_ROOT / "auth_token.json",
+            custom_form_fields=PASSWORD_FIELD,
+            image_dir=PROJECT_ROOT / "resource-config-examples",
+            request_classes=PasswordProtectedRequest,
+        )
+        uvicorn.run(app, host="127.0.0.1", port=8000)
 
     ```
 
@@ -54,9 +141,9 @@ All it takes to build a resource reservation system website for your organizatio
     user is invited to, which they can conveniently add to their own calendar.
 -   Additionally users can opt to receive a reminder email N minutes before their
     reservation.
--   One reservation can be held per email address at a time. A minimal sqlite database
-    is stored on the server to enforce this. Users can cancel their reservations to
-    reschedule.
+-   One reservation can be held per email address at a time. Users can cancel their
+    reservations to reschedule. A minimal sqlite database is stored on the server to
+    enforce this.
 -   Each independently reservable resource (ie. a single tennis court) is backed by its
     own Google calendar. When a user submits a reservation, each included calendar is
     checked, and the first calendar found to be available during the selected time is
