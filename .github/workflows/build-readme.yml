@@ -1,4 +1,4 @@
-name: Build README
+name: update README
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       - name: Markdown autodocs
         uses: dineshsonachalam/markdown-autodocs@v1.0.7
         with:
-          commit_message: built README with source includes
+          commit_message: updated README with source includes
           output_file_paths: "[./README.md]"
           # Categories to automatically sync or transform contents in the markdown files.
           # Defaults to '[code-block,json-to-html-table,workflow-artifact-table]'

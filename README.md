@@ -24,16 +24,16 @@ All it takes to build a resource reservation system website for your organizatio
     reservable resource.
 
 2.  Create an app config yaml file, like this:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=app-config-example.yaml, syntax=yaml) -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=app-config-example.yaml) -->
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 3.  Create a folder of resource reservation config yaml files, one for each set of resources, like this:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=resource-config-examples/2-courts.yaml, syntax=yaml) -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=resource-config-examples/2-courts.yaml) -->
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 4.  Write a simple python script to define custom form inputs, validation, and resource
     paths, and build the app:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=server_example.py, syntax=python) -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=server_example.py) -->
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 5.  Host the app somewhere accessible to your community, and disseminate any shared
