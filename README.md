@@ -27,7 +27,6 @@ All it takes to build a resource reservation system website for your organizatio
 2.  Create an app config yaml file, like this:
     <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=app-config-example.yaml) -->
     <!-- The below code snippet is automatically added from app-config-example.yaml -->
-
     ```yaml
     # FastAPI app title, also used for home page title if multiple resources are configured
     title: Reserve-It Form Server Example
@@ -40,7 +39,7 @@ All it takes to build a resource reservation system website for your organizatio
     app_email: app@email.com
     # Timezone used by all calendars
     timezone: America/Los_Angeles
-
+    
     # Optionally, add custom form fields to all resource reservation webpages. These can be
     # validated by defining a custom ReservationRequest (pydantic model) subclass in the
     # python script. Individual resource pages can add more fields on top of this.
@@ -48,23 +47,21 @@ All it takes to build a resource reservation system website for your organizatio
     # specified type is also allowed.
     # You may not have guessed, but this one defines a password form field.
     custom_form_fields:
-        - type: password # a valid html form input element type
-          name: password # variable name, the ReservationRequest subclass must have this as a field
-          label: Password # form label string displayed
-          required: True # can't leave it blank
-
+      - type: password # a valid html form input element type
+        name: password # variable name, the ReservationRequest subclass must have this as a field
+        label: Password # form label string displayed
+        required: True # can't leave it blank
+    
     # Optionally, add a contact email address that users can badger about issues with all
     # resource reservations. "Contact [email] to report issues (click to copy)." will appear
     # at the bottom of all webpages. This can be overridden on a per-resource basis.
     contact_email: contact@email.com
     ```
-
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 3.  Create a folder of resource reservation config yaml files, one for each set of resources, like this:
     <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=resource-config-examples/2-courts.yaml) -->
     <!-- The below code snippet is automatically added from resource-config-examples/2-courts.yaml -->
-
     ```yaml
     # resource page title
     resource_name: Tennis Courts
@@ -75,16 +72,16 @@ All it takes to build a resource reservation system website for your organizatio
     # the google calendar ids for each individual tennis court, and their hex colors for the
     # embedded calendar view.
     calendars:
-        CourtA:
-            id: longhexstring1@group.calendar.google.com
-            color: "#AA0000"
-        CourtB:
-            id: longhexstring2@group.calendar.google.com
-            color: "#00AA00"
-        CourtC:
-            id: longhexstring3@group.calendar.google.com
-            color: "#0000AA"
-
+      CourtA:
+        id: longhexstring1@group.calendar.google.com
+        color: "#AA0000"
+      CourtB:
+        id: longhexstring2@group.calendar.google.com
+        color: "#00AA00"
+      CourtC:
+        id: longhexstring3@group.calendar.google.com
+        color: "#0000AA"
+    
     day_start_time: 8:00 AM
     day_end_time: 8:00 PM
     # the granularity of available reservations, here it's every hour from 8 to 8.
@@ -98,55 +95,53 @@ All it takes to build a resource reservation system website for your organizatio
     # users can indicate whether they're willing to share a resource with others, adds a
     # checkbox to the form if true
     allow_shareable: true
-
+    
     # Optionally, add additional custom form fields to this resource reservation webpage, on
     # top of the ones defined in app-config-example.yaml
     custom_form_fields:
-        - type: number
-          name: ntrp
-          label: NTRP Rating
-          required: True
-
+      - type: number
+        name: ntrp
+        label: NTRP Rating
+        required: True
+    
     # Optionally, specify a path to a descriptive image for this resource, displayed on the
     # form webpage.
     image:
-        path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
-        caption: court map
-        pixel_width: 800
+      path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
+      caption: court map
+      pixel_width: 800
     ```
-
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 4.  Write a simple python script to define custom form input validation and file paths,
     and then build the app server:
     <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=server_example.py) -->
     <!-- The below code snippet is automatically added from server_example.py -->
-
     ```py
     import os
     from pathlib import Path
     from typing import Self
-
+    
     import uvicorn
     from pydantic import model_validator
-
+    
     from reserve_it import ReservationRequest, build_app
-
-
+    
+    
     # This subclass handles password validation, from the password field defined in
     # `app-config-examples.yaml` under `custom_form_fields`
     class PasswordProtectedRequest(ReservationRequest):
         password: str
-
+    
         @model_validator(mode="after")
         def check_password(self) -> Self:
             if self.password != os.getenv("PASSWORD"):
                 raise ValueError("Invalid input")
             return self
-
-
+    
+    
     PROJECT_ROOT = Path(__file__).parent
-
+    
     if __name__ == "__main__":
         app = build_app(
             app_config=PROJECT_ROOT / "app-config-example.yaml",
@@ -159,7 +154,6 @@ All it takes to build a resource reservation system website for your organizatio
         )
         uvicorn.run(app, host="127.0.0.1", port=8000)
     ```
-
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 5.  Host the app somewhere accessible to your community, and disseminate any shared
