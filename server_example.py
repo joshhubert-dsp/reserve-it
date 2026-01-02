@@ -20,7 +20,7 @@ class PasswordProtectedRequest(ReservationRequest):
         return self
 
 
-PROJECT_ROOT = Path(__file__).parents[3]
+PROJECT_ROOT = Path(__file__).parent
 
 if __name__ == "__main__":
     app = build_app(

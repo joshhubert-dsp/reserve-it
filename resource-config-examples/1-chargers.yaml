@@ -25,8 +25,8 @@ maximum_days_ahead: 7
 # adds a checkbox to the form if true
 allow_end_next_day: true
 
-# arbitrary extra fields can be defined per resource, these are made available for
-# validation by defining a resource-specific custom ReservationRequest subclass
+# Optionally, add additional custom form fields to this resource reservation webpage, on
+# top of the ones defined in app-config-example.yaml
 custom_form_fields:
   - type: text
     name: make

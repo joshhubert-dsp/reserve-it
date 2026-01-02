@@ -4,7 +4,8 @@ resource_name: Tennis Courts
 emoji: 🎾
 # resource page subtitle
 description: Love is nothing.
-# the google calendar ids for each individual tennis court
+# the google calendar ids for each individual tennis court, and their hex colors for the
+# embedded calendar view.
 calendars:
   CourtA:
     id: longhexstring1@group.calendar.google.com
@@ -30,15 +31,16 @@ maximum_days_ahead: 14
 # checkbox to the form if true
 allow_shareable: true
 
-# arbitrary extra fields can be defined per resource, these are made available for
-# validation by defining a resource-specific custom ReservationRequest subclass
+# Optionally, add additional custom form fields to this resource reservation webpage, on
+# top of the ones defined in app-config-example.yaml
 custom_form_fields:
   - type: number
     name: ntrp
     label: NTRP Rating
     required: True
 
-# optional image displayed on form webpage
+# Optionally, specify a path to a descriptive image for this resource, displayed on the
+# form webpage.
 image:
   path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
   caption: court map
