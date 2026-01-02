@@ -19,10 +19,10 @@ jobs:
           fetch-depth: 0
           ref: refs/heads/${{ github.head_ref }}
 
-      - uses: tokusumi/markdown-embed-code@v1.0.0
+      - uses: dineshsonachalam/markdown-autodocs@v1.0.7
         with:
-          markdown: README.in.md
-          output: README.md
-          token: ${{ secrets.GITHUB_TOKEN }}
-          message: built README with source includes
-          silent: true
+          commit_message: built README with source includes
+          output_file_paths: "[./README.md]"
+          # Categories to automatically sync or transform contents in the markdown files.
+          # Defaults to '[code-block,json-to-html-table,workflow-artifact-table]'
+          categories: "[code-block]"
