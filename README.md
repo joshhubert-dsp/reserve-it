@@ -119,6 +119,7 @@ All it takes to build a resource reservation system website for your organizatio
     
     
     # This subclass handles password validation, from the password field defined in
+    # `app-config-examples.yaml` under `custom_form_fields`
     class PasswordProtectedRequest(ReservationRequest):
         password: str
     
