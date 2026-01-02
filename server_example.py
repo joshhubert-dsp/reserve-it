@@ -9,6 +9,7 @@ from reserve_it import ReservationRequest, build_app
 
 
 # This subclass handles password validation, from the password field defined in
+# `app-config-examples.yaml` under `custom_form_fields`
 class PasswordProtectedRequest(ReservationRequest):
     password: str
 

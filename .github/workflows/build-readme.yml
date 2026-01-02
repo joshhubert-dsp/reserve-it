@@ -37,6 +37,7 @@ jobs:
       - name: Run Markdown Autodocs
         uses: dineshsonachalam/markdown-autodocs@v1.0.7
         with:
+          commit_author: trusty-pushbot[bot]
           commit_message: updated README with source includes
           output_file_paths: "[./README.md]"
           # Categories to automatically sync or transform contents in the markdown files.
