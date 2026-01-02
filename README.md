@@ -32,21 +32,28 @@ All it takes to build a resource reservation system website for your organizatio
     # FastAPI app description, also used for home page subtitle if multiple resources are
     # configured
     description: Form server for shared community amenity/resource reservations.
-    # app version
+    # App version
     version: 0.1.0
-    # app email address that users receive confirmation/reminder emails from
+    # App email address that users receive confirmation/reminder emails from
     app_email: app@email.com
-    # timezone used by all calendars
+    # Timezone used by all calendars
     timezone: America/Los_Angeles
     
-    # optional, defines a password form field that is added to all resource reservation webpages
+    # Optionally, add custom form fields to all resource reservation webpages. These can be
+    # validated by defining a custom ReservationRequest (pydantic model) subclass in the
+    # python script. Individual resource pages can add more fields on top of this.
+    # The keys shown are required, but any legal html form input element styling key for the
+    # specified type is also allowed.
+    # You may not have guessed, but this one defines a password form field.
     custom_form_fields:
-      - type: password
-        name: password
-        label: Password
-        required: True
+      - type: password # a valid html form input element type
+        name: password # variable name, the ReservationRequest subclass must have this as a field
+        label: Password # form label string displayed
+        required: True # can't leave it blank
     
-    # optional, email address that users can contact to report issues
+    # Optionally, add a contact email address that users can badger about issues with all
+    # resource reservations. "Contact [email] to report issues (click to copy)." will appear
+    # at the bottom of all webpages. This can be overridden on a per-resource basis.
     contact_email: contact@email.com
     ```
     <!-- MARKDOWN-AUTO-DOCS:END -->
@@ -61,7 +68,8 @@ All it takes to build a resource reservation system website for your organizatio
     emoji: 🎾
     # resource page subtitle
     description: Love is nothing.
-    # the google calendar ids for each individual tennis court
+    # the google calendar ids for each individual tennis court, and their hex colors for the
+    # embedded calendar view.
     calendars:
       CourtA:
         id: longhexstring1@group.calendar.google.com
@@ -87,15 +95,16 @@ All it takes to build a resource reservation system website for your organizatio
     # checkbox to the form if true
     allow_shareable: true
     
-    # arbitrary extra fields can be defined per resource, these are made available for
-    # validation by defining a resource-specific custom ReservationRequest subclass
+    # Optionally, add additional custom form fields to this resource reservation webpage, on
+    # top of the ones defined in app-config-example.yaml
     custom_form_fields:
       - type: number
         name: ntrp
         label: NTRP Rating
         required: True
     
-    # optional image displayed on form webpage
+    # Optionally, specify a path to a descriptive image for this resource, displayed on the
+    # form webpage.
     image:
       path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
       caption: court map
@@ -130,7 +139,7 @@ All it takes to build a resource reservation system website for your organizatio
             return self
     
     
-    PROJECT_ROOT = Path(__file__).parents[3]
+    PROJECT_ROOT = Path(__file__).parent
     
     if __name__ == "__main__":
         app = build_app(
