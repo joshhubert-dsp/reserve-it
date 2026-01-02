@@ -1,0 +1,28 @@
+name: Build README
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # force a full checkout for proper git history and don't save the credentials for future steps to steal
+          persist-credentials: false
+          fetch-depth: 0
+          ref: refs/heads/${{ github.head_ref }}
+
+      - uses: tokusumi/markdown-embed-code@main
+        with:
+          markdown: README.in.md
+          output: README.md
+          token: ${{ secrets.GITHUB_TOKEN }}
+          message: built README with source includes
+          silent: true

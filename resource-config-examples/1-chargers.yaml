@@ -6,10 +6,12 @@ emoji: ⚡️
 description: EV1 is the charger on the left, EV2 is the one on the right. You'll automatically be assigned to whichever is free.
 # the google calendar ids for each individual EV charger
 calendars:
-  {
-    EV1: { id: longhexstring1@group.calendar.google.com, color: "#44CC44" },
-    EV2: { id: longhexstring2@group.calendar.google.com, color: "#4444CC" },
-  }
+  EV1:
+    id: longhexstring1@group.calendar.google.com
+    color: "#44CC44"
+  EV2:
+    id: longhexstring2@group.calendar.google.com
+    color: "#4444CC"
 
 # the granularity of available reservations, here it's every 30 minutes, 24 hours a day.
 minutes_increment: 30
@@ -19,13 +21,18 @@ maximum_minutes: 600
 minutes_before_reminder: 60
 # how far in advance users are allowed to make reservations
 maximum_days_ahead: 7
-# whether to allow overnight reservations (end time is on the day after start time)
+# whether to allow overnight reservations (end time is on the day after start time),
+# adds a checkbox to the form if true
 allow_end_next_day: true
 
 # arbitrary extra fields can be defined per resource, these are made available for
 # validation by defining a resource-specific custom ReservationRequest subclass
 custom_form_fields:
-  [
-    { type: text, name: make, label: Car Make, required: True },
-    { type: text, name: model, label: Car Model, required: True },
-  ]
+  - type: text
+    name: make
+    label: Car Make
+    required: True
+  - type: text
+    name: model
+    label: Car Model
+    required: True

@@ -9,8 +9,13 @@ version: 0.1.0
 app_email: app@email.com
 # timezone used by all calendars
 timezone: America/Los_Angeles
+
 # optional, defines a password form field that is added to all resource reservation webpages
 custom_form_fields:
-  [{ type: password, name: password, label: Password, required: True }]
+  - type: password
+    name: password
+    label: Password
+    required: True
+
 # optional, email address that users can contact to report issues
 contact_email: contact@email.com

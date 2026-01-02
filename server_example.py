@@ -8,7 +8,7 @@ from pydantic import model_validator
 from reserve_it import ReservationRequest, build_app
 
 
-# This subclass handles password validation
+# This subclass handles password validation, from the password field defined in
 class PasswordProtectedRequest(ReservationRequest):
     password: str
 
