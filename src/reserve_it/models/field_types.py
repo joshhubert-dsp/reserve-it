@@ -2,7 +2,7 @@ from datetime import datetime, time
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
-from pydantic import BeforeValidator, Field, FilePath, StringConstraints
+from pydantic import BeforeValidator, FilePath, StringConstraints
 from pydantic.functional_validators import AfterValidator
 
 
@@ -28,15 +28,12 @@ def parse_ampm_time(v: Any) -> time:
     raise TypeError(f"Expected datetime, time or AM/PM string, got {type(v)!r}")
 
 
-AmPmTime = Annotated[
-    time,
-    BeforeValidator(parse_ampm_time),
-    Field(
-        description="Clock time that can be parsed from a string in AM/PM 12-hour format."
-    ),
-]
+AmPmTime = Annotated[time, BeforeValidator(parse_ampm_time)]
+"""Clock time that can be parsed from a string in AM/PM 12-hour format, `HH:MM AM/PM`."""
 
 HexColor = Annotated[str, StringConstraints(pattern=r"^#[0-9A-Fa-f]{6}$")]
+"""Color hex string with 6 digits (no alpha), ie. "#AAAAAA", used for the color of individual resource
+calendars in the embedded calendar view"""
 
 HtmlFormInputType = Literal[
     "button",
@@ -60,7 +57,6 @@ HtmlFormInputType = Literal[
     "time",
     "url",
     "week",
-    Field(
-        description="Possible values for the type argument of a custom form input field."
-    ),
 ]
+""""Possible values for the `type` argument of a custom form input field."
+"""

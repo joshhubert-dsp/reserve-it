@@ -184,7 +184,7 @@ def _build_gcal_event(
 ):
     return GcalEvent(
         event_id=event_id,
-        summary=event_label + (" Reminder" if reminder else ""),
+        summary=("Reminder: " if reminder else "") + f"{event_label} Reservation",
         description=f"This invitation confirms your reservation for {event_label}.",
         start=request.start_dt,
         end=request.end_dt,
