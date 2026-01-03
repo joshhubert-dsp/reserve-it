@@ -38,6 +38,10 @@ theme:
   features:
     - content.tabs.link
     - content.code.copy
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.tracking
 
 plugins:
   - search
@@ -86,6 +90,5 @@ extra:
   social:
     - icon: simple/github
       link: https://github.com/joshhubert-dsp/reserve-it
-
 extra_css:
   - stylesheets/extra.css

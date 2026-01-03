@@ -58,5 +58,4 @@ HtmlFormInputType = Literal[
     "url",
     "week",
 ]
-""""Possible values for the `type` argument of a custom form input field."
-"""
+"""Possible values for the `type` argument of a custom form input field."""
