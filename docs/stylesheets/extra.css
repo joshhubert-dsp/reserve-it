@@ -1,0 +1,4 @@
+/* Hides the site name in the navigation sidebar header */
+.md-nav__title {
+  display: none;
+}

@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import DirectoryPath, FilePath, ValidationError, validate_call
 from rich import print
 
-from reserve_it import SRC_ROOT, TEMPLATES
+from reserve_it import SOURCE_ROOT, TEMPLATES
 from reserve_it.app.calendar_service import GoogleCalendarService
 from reserve_it.app.route_helpers import (
     bind_post_endpoint,
@@ -111,7 +111,7 @@ def build_app(
     app.add_exception_handler(Exception, log_unexpected_exception)
 
     # add directory for js files
-    app.mount("/static", StaticFiles(directory=SRC_ROOT / "static"), name="static")
+    app.mount("/static", StaticFiles(directory=SOURCE_ROOT / "static"), name="static")
     # add directory for optional webpage images
     if image_dir:
         app.mount("/images", StaticFiles(directory=image_dir), name="images")

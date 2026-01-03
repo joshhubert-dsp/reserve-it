@@ -22,9 +22,9 @@ class ReservationRequest(BaseModel):
         email (str): The user's email, required for inviting them to the reservation
             event and sending a reminder email.
         date (date): The date of the reservation.
-        start_time (AmPmTime | time): The start time, can be input as a string "XX:XX
+        start_time (AmPmTime | time): The start time, can be input as a string "HH:MM
             AM/PM", converted to a time object.
-        end_time (AmPmTim | time): The end time, can be input as a string "XX:XX AM/PM",
+        end_time (AmPmTim | time): The end time, can be input as a string "HH:MM AM/PM",
             converted to a time object.
         end_next_day (bool): Whether to interpret end_time as on the day after date, for
             overnight reservations. Defaults to False.

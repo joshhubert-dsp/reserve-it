@@ -1,0 +1,91 @@
+site_name: reserve-it!
+site_url: https://sitename.example # TODO
+theme:
+  name: material
+  font:
+    text: DM Sans
+    code: Red Hat Mono
+  # TODO figure out light/dark mode autofill
+  logo: assets/calendar-alert.svg
+  favicon: assets/calendar-alert.svg
+  # icon:
+  #   logo: custom/calendar-alert
+  palette:
+    # System Preference
+    - media: "(prefers-color-scheme)"
+      primary: blue
+      accent: deep purple
+      toggle:
+        icon: material/lightbulb-on-50
+        name: "Using system preference. Switch to dark mode"
+    # Dark Mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: deep purple
+      toggle:
+        icon: material/lightbulb-on-outline
+        name: "Using dark mode. Switch to light mode."
+    # Light Mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: deep purple
+      toggle:
+        icon: material/lightbulb-on
+        name: "Using light mode. Switch to system preference."
+
+  features:
+    - content.tabs.link
+    - content.code.copy
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/gen_docs.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - mkdocstrings:
+      enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
+      # custom_templates: templates
+      default_handler: python
+      locale: en
+      handlers:
+        python:
+          paths: [../src]
+          options:
+            show_source: false
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      options:
+        custom_icons:
+          - .icons
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+
+nav:
+  - Home: index.md
+  - Google Calendar Setup: gcal_setup.md
+  - Code Reference: reference/
+
+extra:
+  social:
+    - icon: simple/github
+      link: https://github.com/joshhubert-dsp/reserve-it
+
+extra_css:
+  - stylesheets/extra.css

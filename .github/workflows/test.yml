@@ -1,15 +1,15 @@
-# This workflow will install Python dependencies, run tests and lint.
+# This workflow will install Python dependencies, lint and run tests.
 # For more information see: https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-python
 
 name: Tests
 
 on:
   push:
-    branches: 
+    branches:
       - main
   pull_request:
-    branches: 
-        - main
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -19,24 +19,27 @@ jobs:
     strategy:
       matrix:
         # Test all supported Python versions under Ubuntu
-        os: [ubuntu-latest]
-        python-version: ['3.12', '3.13']
+        os:
+          - ubuntu-latest
+        python-version:
+          - "3.12"
+          - "3.13"
 
     runs-on: ${{matrix.os}}
 
     steps:
-    - uses: actions/checkout@v6
-    - name: Set up Python ${{matrix.python-version}}
-      uses: actions/setup-python@v6
-      with:
-        python-version: ${{matrix.python-version}}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install . --group dev
-    - name: Lint with ruff
-      run: |
-        ruff check
-    - name: Run tests
-      run: |
-        pytest
+      - uses: actions/checkout@v6.0.1
+      - name: Set up Python ${{matrix.python-version}}
+        uses: actions/setup-python@v6.1.0
+        with:
+          python-version: ${{matrix.python-version}}
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install . --group dev
+      - name: Lint
+        run: |
+          ruff check
+      - name: Run tests
+        run: |
+          pytest
