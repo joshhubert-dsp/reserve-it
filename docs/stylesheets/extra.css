@@ -4,3 +4,29 @@ upward navigation through page hiearchy
 /* .md-nav__title {
   display: none;
 } */
+
+/* Put search earlier, then palette toggle, then repo icon (GitHub) */
+/* .md-header__inner .md-search {
+  order: 10;
+}
+
+.md-header__inner .md-header__option {
+  order: 20;
+}
+*/
+
+.md-header__inner .md-header__option {
+  margin-right: 0.25rem;
+}
+
+
+/* Repo (GitHub) button container */
+.md-header__inner .md-header__source {
+  order: 30; */
+}
+
+
+
+.md-header__source .md-source__repository {
+  display: none;
+}

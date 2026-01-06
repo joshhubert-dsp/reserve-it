@@ -1,5 +1,7 @@
 site_name: reserve-it!
-site_url: https://sitename.example # TODO
+site_url: https://joshhubert-dsp.github.io/reserve-it/
+repo_url: https://github.com/joshhubert-dsp/reserve-it
+
 theme:
   name: material
   font:
@@ -8,6 +10,9 @@ theme:
   # TODO figure out light/dark mode autofill
   logo: assets/calendar-alert.svg
   favicon: assets/calendar-alert.svg
+  icon:
+    # Use the GitHub brand icon from Font Awesome
+    repo: simple/github
   # icon:
   #   logo: custom/calendar-alert
   palette:
@@ -42,6 +47,7 @@ theme:
     - navigation.expand
     - navigation.path
     - navigation.tracking
+    # intentionally omit repo.stats
 
 plugins:
   - search
