@@ -102,7 +102,7 @@ class ResourceConfig(BaseSettings):
         route_prefix (str): the fastapi endpoint prefix for this resource, will be
             `/file_prefix` unless there's only one resource, then it will be set to
             the empty string to avoid an unnecessary extra url path component.
-        resource_name (str): the webpage title for this resources.
+        name (str): the webpage title for this resources.
         calendars (dict[str, CalendarInfo]): dict of "calendar short name" to
             CalendarInfos for each individual calendar. If more than 4 calendars are
             included
@@ -145,7 +145,7 @@ class ResourceConfig(BaseSettings):
 
     file_prefix: str
     route_prefix: str
-    resource_name: str
+    name: str
     calendars: dict[str, CalendarInfo]
     day_start_time: AmPmTime = Field(default_factory=lambda: time(hour=0, minute=0))
     day_end_time: AmPmTime = Field(default_factory=lambda: time(hour=23, minute=59))

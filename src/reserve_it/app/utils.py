@@ -172,7 +172,7 @@ def build_calendar_embed_url(config: ResourceConfig, timezone: ZoneInfo) -> str 
 
     base = "https://calendar.google.com/calendar/embed?"
     params = {
-        "title": config.resource_name,
+        "title": config.name,
         "ctz": timezone,
         "mode": "WEEK",
         "showCalendars": 1,

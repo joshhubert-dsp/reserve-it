@@ -1,6 +1,6 @@
 {% extends "base.html" %} 
 
-{% block title %} {{config.resource_name}} Reservation {% endblock %}
+{% block title %} {{config.name}} Reservation {% endblock %}
 
 {% block custom_style %}
 <!-- invert calendar colors when <html> has class="dark" -->
@@ -45,7 +45,7 @@
 </style>
 {% endblock %}
 
-{% block heading %} {{config.emoji}} {{config.resource_name}} Reservation {% endblock %} 
+{% block heading %} {{config.emoji}} {{config.name}} Reservation {% endblock %} 
 
 {% block description %} {{config.description}} {% endblock %}
 
