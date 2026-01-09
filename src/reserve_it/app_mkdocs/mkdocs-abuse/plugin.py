@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from datetime import date, datetime, timedelta
+
 from pydantic import BaseModel, DirectoryPath, ValidationError
 
 from reserve_it.app.utils import load_resource_cfgs_from_yaml
-from reserve_it.app_mkdocs.render_static import render_static
 from reserve_it.models.app_config import AppConfig
-from reserve_it.models.field_types import YamlPath
+from reserve_it.models.field_types import AM_PM_TIME_FORMAT, YamlPath
 from reserve_it.models.resource_config import ResourceConfig
 
 """
@@ -28,10 +29,8 @@ Key ideas:
 
 import re
 import shutil
-from collections.abc import Iterable
 from pathlib import Path
 
-import yaml
 from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
 from mkdocs.config import config_options
 from mkdocs.config.base import Config
@@ -61,10 +60,11 @@ def slugify(s: str) -> str:
     return s.strip("-") or "resource"
 
 
-# Asset management: ship JS/CSS from package into site/ and auto-include them.
-ASSETS_DIR = Path("assets/reserve-it")
+# Custom Assets: ship JS/CSS from package into site/ and auto-include them.
+ASSETS_DIR = Path("reserve-it-assets")
 ASSETS = {
-    "js": ["reserve-it.js"],
+    "js_local": [],
+    "js_remote": ["https://unpkg.com/htmx.org@1.9.12"],
     "css": ["reserve-it.css"],
 }
 # Template names inside this package's templates/ directory.
@@ -87,24 +87,24 @@ class ReserveItPluginConfig(Config):
     app_config = config_options.Type(str, default="app-config.yaml")
     resource_config_dir = config_options.Type(str, default="resource-configs")
     image_dir = config_options.Type(str, default="resource-configs")
+    assets_enabled = config_options.Type(bool, default=True)
     # Base path that your frontend calls for your FastAPI endpoints.
-    api_base = config_options.Type(str, default="/api")
+    # api_base = config_options.Type(str, default="/api")
     # Where generated docs live (inside MkDocs docs tree). This is logical paths,
     # not user filesystem paths.
-    docs_out_dir = config_options.Type(str, default="")
-    assets_enabled = config_options.Type(bool, default=True)
+    # docs_out_dir = config_options.Type(str, default="")
 
 
 class ConfigValidator(BaseModel):
     app_config: YamlPath
     resource_config_dir: DirectoryPath
     image_dir: DirectoryPath
+    assets_enabled: bool
     # Base path that your frontend calls for your FastAPI endpoints.
-    api_base: str
+    # api_base: str
     # Where generated docs live (inside MkDocs docs tree). This is logical paths,
     # not user filesystem paths.
-    docs_out_dir: DirectoryPath
-    assets_enabled: bool
+    # docs_out_dir: DirectoryPath
 
 
 class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
@@ -171,11 +171,14 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             extra_js = config.get("extra_javascript", [])
             extra_css = config.get("extra_css", [])
 
-            for js_name in ASSETS.get("js", []):
-                extra_js.append(ASSETS_DIR / js_name)
+            for js in ASSETS.get("js_local", []):
+                extra_js.append(ASSETS_DIR / js)
 
-            for css_name in ASSETS.get("css", []):
-                extra_css.append(ASSETS_DIR / css_name)
+            for js in ASSETS.get("js_remote", []):
+                extra_js.append(js)
+
+            for css in ASSETS.get("css", []):
+                extra_css.append(ASSETS_DIR / css)
 
             config["extra_javascript"] = extra_js
             config["extra_css"] = extra_css
@@ -201,15 +204,14 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         # 2) For each resource, add a new virtual Markdown page.
 
-        for r in self.resource_configs:
-            # within the docs tree
-            src_path = self.cfg.docs_out_dir / f"{r}.md"
+        for name, cfg in self.resource_configs.items():
+            # within the virtual docs tree
+            src_path = f"{name}.md"
+            # src_path = self.cfg.docs_out_dir / f"{name}.md"
 
             # Generate Markdown content now (via Jinja template).
             self._generated_markdown[src_path] = self._render_resource_page_markdown(
-                resource=r,
-                api_base=str(self.config["api_base"]).rstrip("/"),
-                route_prefix=route_prefix,
+                cfg
             )
 
             # Add file to MkDocs "known files". MkDocs uses docs_dir for source root,
@@ -217,11 +219,10 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             files.append(
                 File(
                     path=src_path,  # doc-relative path
-                    src_dir=str(
-                        Path(config["docs_dir"])
-                    ),  # required by MkDocs File API
-                    dest_dir=config["site_dir"],  # output root
-                    use_directory_urls=config.get("use_directory_urls", True),
+                    src_dir=None,  # virtual file
+                    # output root, arg already available at yaml top level
+                    dest_dir=config["site_dir"],
+                    use_directory_urls=True,
                 )
             )
 
@@ -254,8 +255,7 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         For our virtual pages, return the generated Markdown string.
         For all other pages, return None to let MkDocs read from disk normally.
         """
-        src_path = page.file.src_path.replace("\\", "/")
-        return self._generated_markdown.get(src_path)
+        return self._generated_markdown.get(page.file.src_path)
 
     # -----------------------------
     # Hook: on_post_build
@@ -269,22 +269,19 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         This does NOT modify the user's repo. It only affects the built output.
         """
-        assets_cfg = self.config["assets"] or {}
-        if not bool(assets_cfg.get("enabled", True)):
+        if not self.cfg.assets_enabled:
             return
 
-        asset_dir = str(assets_cfg.get("asset_dir", "assets/reserve-it")).strip("/")
-        js_files = list(assets_cfg.get("js", []))
-        css_files = list(assets_cfg.get("css", []))
+        js_files = ASSETS.get("js_local", [])
+        css_files = ASSETS.get("css", [])
 
         # Built site directory (where MkDocs outputs HTML/CSS/JS).
-        site_dir = Path(config["site_dir"]).resolve()
-        target_dir = site_dir / asset_dir
+        target_dir = config["site_dir"] / ASSETS_DIR
         target_dir.mkdir(parents=True, exist_ok=True)
 
         # Our packaged static assets live at: reserve_it_mkdocs/static/*
         pkg_root = Path(__file__).resolve().parent
-        static_dir = pkg_root / "static"
+        static_dir = pkg_root / ASSETS_DIR
 
         # Copy whatever files are declared in config.
         for name in js_files + css_files:
@@ -295,38 +292,9 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             shutil.copy2(src, target_dir / name)
 
     # -----------------------------
-    # YAML loading
-    # -----------------------------
-    def _load_resources(self, cfg_dir: Path) -> Iterable[Resource]:
-        """
-        Scan a directory for YAML files and parse them into Resource objects.
-
-        Expected YAML minimal fields:
-          - name OR title
-          - optional slug
-          - optional description
-
-        Any extra fields remain available in resource.raw for templates.
-        """
-        if not cfg_dir.exists():
-            return
-
-        paths = sorted(cfg_dir.glob("*.yml")) + sorted(cfg_dir.glob("*.yaml"))
-        for p in paths:
-            raw = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-
-            title = str(raw.get("title") or raw.get("name") or p.stem).strip()
-            slug = slugify(str(raw.get("slug") or title))
-            desc = str(raw.get("description") or "").strip()
-
-            yield Resource(slug=slug, title=title, description=desc, raw=raw)
-
-    # -----------------------------
     # Jinja rendering helpers
     # -----------------------------
-    def _render_resource_page_markdown(
-        self, resource: ResourceConfig, api_base: str, route_prefix: str
-    ) -> str:
+    def _render_resource_page_markdown(self, resource: ResourceConfig) -> str:
         """
         Render resource page Markdown using a Jinja template shipped in this package.
 
@@ -336,11 +304,24 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         tpl_name = TEMPLATES["resource_page"]
         tpl = self._jinja.get_template(tpl_name)
 
+        dt_start = datetime.combine(date.today(), resource.day_start_time)
+        dt_end = datetime.combine(date.today(), resource.day_end_time)
+        time_slots = [dt_start]
+
+        while (
+            next_dt := time_slots[-1] + timedelta(minutes=resource.minutes_increment)
+        ) <= dt_end:
+            time_slots.append(next_dt)
+
+        time_slots = [dt.time().strftime(AM_PM_TIME_FORMAT) for dt in time_slots]
+
         # Everything you pass here becomes available in the .md.j2 template.
-        return render_static(
-            self.cfg.app_config,
-            api_base=api_base,
-            route_prefix=route_prefix,
+        return tpl.render(
+            resource=resource,
+            custom_form_fields=[
+                model.model_dump(mode="json") for model in resource.custom_form_fields
+            ],
+            time_slots=time_slots,
         )
 
     # def _render_index_page_markdown(

@@ -145,6 +145,22 @@
 
 
 /* calendar dark mode style  */
-[data-md-color-scheme="slate"] .calendar-invert {
+[data-md-color-scheme="slate"] .ri-root .calendar-invert {
   filter: invert(1) hue-rotate(180deg) contrast(0.9);
+}
+
+
+/* flex-col conversion */
+.flex-col-start {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+/* Tailwind's `md:` breakpoint = 768px */
+@media (min-width: 768px) {
+  .flex-col-start {
+    align-self: flex-end;
+  }
 }

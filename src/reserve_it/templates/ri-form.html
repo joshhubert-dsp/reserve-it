@@ -4,10 +4,86 @@
 
 {% block ri-content %}
 
-<h1 class="text-3xl font-semibold">
+<style>
+  .ri-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 600;
+  }
+
+  .ri-subtitle {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    padding-bottom: 1rem;
+  }
+
+  .reservation-form-layout {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-button-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .button-reserve {
+    background-color: #4f46e5;
+  }
+  .button-reserve:hover {
+    background-color: #4338ca;
+  }
+  .button-reserve:active {
+    background-color: #3730a3;
+  }
+
+  .button-cancel {
+    background-color: #dc2626;
+  }
+  .button-cancel:hover {
+    background-color: #b91c1c;
+  }
+  .button-cancel:active {
+    background-color: #991b1b;
+  }
+
+  .calendar-card {
+    flex: 1 1 0%;
+    overflow: hidden;
+    height: 80vh;
+  }
+
+  .contact-email-button {
+    display: inline;
+    background: none;
+    border: none;
+    color: #3b82f6;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+  .contact-email-button:hover {
+    color: #1d4ed8;
+  }
+
+  @media (min-width: 768px) {
+    .reservation-form-layout {
+      flex-direction: row;
+      align-items: flex-end;
+    }
+
+    .form-button-row {
+      align-self: flex-end;
+    }
+  }
+</style>
+
+<h1 class="ri-title">
   {{page.meta.emoji}} {{page.meta.name}} Reservation 
 </h1>
-<h2 class="text-l pb-4">
+<h2 class="ri-subtitle">
   {{page.meta.description}}
 </h2>
 
@@ -19,7 +95,7 @@
     <form
         method="post"
         id="reservation-form"
-        class="mt-2 flex flex-col gap-4 md:flex-row md:items-end"
+        class="reservation-form-layout"
     >
         <div class="reservation-input">
             <label for="email" class="reservation-field"> Email </label>
@@ -94,7 +170,7 @@
         </div>
 
         {% if page.meta.allow_end_next_day %}
-            <div class="flex flex-col items-start gap-1 md:self-end">
+            <div class="flex-col-start">
                 <label for="end_next_day" class="reservation-field"> next day </label>
                 <input
                     type="checkbox"
@@ -107,7 +183,7 @@
         {% endif %}
 
         {% if page.meta.allow_shareable %}
-            <div class="flex flex-col items-start gap-1 md:self-end">
+            <div class="flex-col-start">
                 <label for="shareable" class="reservation-field"> ok to share </label>
                 <input
                     type="checkbox"
@@ -118,7 +194,7 @@
                 />
             </div>
         {% endif %}
-        <div class="flex flex-col items-start gap-1 md:self-end">
+        <div class="flex-col-start">
             <label for="reminder" class="reservation-field"> reminder </label>
             <input
                 type="checkbox"
@@ -129,7 +205,7 @@
             />
         </div>
 
-        <div class="flex gap-2 md:self-end">
+        <div class="form-button-row">
             <button
                 type="button"
                 hx-post="{{ page.meta.route_prefix }}/reserve"
@@ -137,7 +213,7 @@
                 hx-swap="innerHTML"
                 hx-include="#reservation-form"
                 title="Submit your reservation."
-                class="submit-button bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800"
+                class="submit-button button-reserve"
             >
                 Reserve
             </button>
@@ -149,7 +225,7 @@
                 hx-swap="innerHTML"
                 hx-include="#reservation-form"
                 title="Cancel your reservation. Any reservation matching your info that falls in the designated timespan will be removed."
-                class="submit-button bg-red-600 hover:bg-red-700 active:bg-red-800"
+                class="submit-button button-cancel"
             >
                 Cancel
             </button>
@@ -160,31 +236,34 @@
 <!-- OPTIONAL IMAGE -->
 {% if page.meta.image %}
     <div class="card">
-        <div class="flex justify-center">
+        <div style="display: flex; justify-content: center;">
             <img
-                src="{{ url_for('images', path=page.meta.image.path.name) }}"
+                src="{{ page.meta.image.path }}"
                 title="{{ page.meta.image.path.name }}"
                 alt="{{ page.meta.image.caption }}"
                 width="{{ page.meta.image.pixel_width or '' }}"
                 height="{{ page.meta.image.pixel_height or '' }}"
-                class="mx-auto"
+                style="display: block; margin: 0 auto;"
             >
         </div>
     </div>
 {% endif %}
 
-<!--OPTIONAL CALENDAR -->
-{% if page.meta.calendar_embed_url %}
-    <div class="card flex-1 overflow-hidden h-[80vh]">
+<!-- OPTIONAL CALENDAR, raw for dynamic content not supplied until runtime -->
+{% raw %}
+{% if calendar_embed_url %}
+    <div class="card calendar-card">
         <div id=calendar-wrapper class="calendar-style">
             <iframe
                 src="{{ calendar_embed_url }}"
-                class="w-full h-full calendar-invert"
+                class="calendar-invert"
+                style="width: 100%; height: 100%;"
                 frameborder="0"
             ></iframe>
         </div>
     </div>
 {% endif %}
+{% endraw %}
 
 <!-- OPTIONAL CONTACT EMAIL -->
 {% if page.meta.contact_email %}
@@ -193,7 +272,7 @@
 
         <button
         type="button"
-        class="inline bg-none border-none text-blue-500 underline cursor-pointer hover:text-blue-700"
+        class="contact-email-button"
         onclick="navigator.clipboard.writeText(this.textContent)"
         >
             {{ page.meta.contact_email }}

@@ -2,7 +2,7 @@ import asyncio
 from collections import Counter
 from collections.abc import Coroutine
 from copy import deepcopy
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from devtools import pformat
@@ -20,6 +20,7 @@ from reserve_it.app.utils import (
     build_calendar_embed_url,
     get_calendar_service,
     get_reminder_service,
+    get_timezone,
 )
 from reserve_it.models.app_config import AppConfig
 from reserve_it.models.field_types import AM_PM_TIME_FORMAT
@@ -27,6 +28,20 @@ from reserve_it.models.reservation_request import ReservationRequest
 from reserve_it.models.resource_config import ResourceConfig
 
 # --- RESOURCE ENDPOINT FUNCTIONS ---
+
+
+async def get_form(request: Request, config: ResourceConfig):
+    # TODO figure out final template path
+    return TEMPLATES.TemplateResponse(
+        "form.html",
+        {
+            "request": request,
+            "today": date.today().isoformat(),
+            "calendar_embed_url": build_calendar_embed_url(
+                config, get_timezone(request)
+            ),
+        },
+    )
 
 
 def bind_post_endpoint(

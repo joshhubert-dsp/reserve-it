@@ -5,10 +5,9 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import DirectoryPath, FilePath, ValidationError, validate_call
 
-from reserve_it import SOURCE_ROOT, TEMPLATES
+from reserve_it import TEMPLATES
 from reserve_it.app.calendar_service import GoogleCalendarService
 from reserve_it.app.route_helpers import (
     bind_post_endpoint,
@@ -109,16 +108,16 @@ def build_app(
     app.add_exception_handler(Exception, log_unexpected_exception)
 
     # add directory for js files
-    app.mount("/static", StaticFiles(directory=SOURCE_ROOT / "static"), name="static")
-    # add directory for optional webpage images
-    if image_dir:
-        app.mount("/images", StaticFiles(directory=image_dir), name="images")
+    # app.mount("/static", StaticFiles(directory=SOURCE_ROOT / "static"), name="static")
+    # # add directory for optional webpage images
+    # if image_dir:
+    #     app.mount("/images", StaticFiles(directory=image_dir), name="images")
 
     _register_resource_routes(app, dependencies.resource_bundles, app_config)
 
     # if there's only one resource, then no need for a separate home page
-    if dependencies.num_resources > 1:
-        _register_home_route(app)
+    # if dependencies.num_resources > 1:
+    #     _register_home_route(app)
 
     return app
 

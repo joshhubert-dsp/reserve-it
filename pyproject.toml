@@ -45,6 +45,12 @@ build-backend = "setuptools.build_meta"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
+[project.entry-points."mkdocs.plugins"]
+reserve-it = "reserve_it_mkdocs.plugin:ReserveItPlugin"
+
+# [tool.setuptools.package-data]
+# reserve_it_mkdocs = ["templates/*.j2", "static/*"]
+
 [tool.setuptools]
 package-dir = { "" = "src" }
 
