@@ -1,0 +1,30 @@
+# TODO
+{% extends "main.html" %}
+
+{% block content %}
+    <div class="ri-root"></div>
+      <!-- <header class="flex flex-col gap-y-4"> -->
+      <!-- <main class="flex-1 space-y-4" > -->
+      {% block ri-content %}{% endblock %}
+    </div>
+{% endblock %}
+
+
+
+{% block footer %}
+    {{ super() }}
+
+    <!-- <footer class="mt-1 text-center text-sm text-slate-600 dark:text-slate-400"> -->
+    built with 
+    <a href="https://github.com/joshhubert-dsp/reserve-it" class="underline hover:text-blue-800">
+        reserve-it!
+    </a> framework
+{% endblock %}
+
+
+
+<!-- <body
+    class="flex flex-col bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen px-6 py-4"
+> -->
+
+

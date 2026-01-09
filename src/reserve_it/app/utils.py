@@ -2,7 +2,6 @@ import asyncio
 import re
 from dataclasses import dataclass
 from itertools import chain
-from pathlib import Path
 from time import time
 from typing import cast
 from urllib.parse import quote_plus, urlencode
@@ -11,6 +10,7 @@ from zoneinfo import ZoneInfo
 import yaml
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from devtools import pformat
 from fastapi import FastAPI, Request, status
 from fastapi.concurrency import asynccontextmanager
 from fastapi.exception_handlers import request_validation_exception_handler
@@ -26,7 +26,6 @@ from sqlmodel import SQLModel, create_engine
 from reserve_it.app.database import ReservationDatabase, create_session_factory
 from reserve_it.app.reminders import ReminderService
 from reserve_it.models.app_config import AppConfig
-from reserve_it.models.field_types import must_be_yaml
 from reserve_it.models.reservation_request import ReservationRequest
 from reserve_it.models.resource_config import (
     DEFAULT_TO_APP_CONFIG_FIELDS,
@@ -58,17 +57,10 @@ class ResourceBundle:
 
 
 def load_resource_cfgs_from_yaml(
-    yaml_path: Path, app_config: AppConfig
+    yaml_dir: DirectoryPath, app_config: AppConfig
 ) -> dict[str, ResourceConfig]:
     configs: dict[str, ResourceConfig] = {}
-
-    if yaml_path.is_dir():
-        config_file_paths = list(
-            chain(yaml_path.glob("*.yaml"), yaml_path.glob("*.yml"))
-        )
-    else:  # has to be an existing file
-        must_be_yaml(yaml_path)
-        config_file_paths = [yaml_path]
+    config_file_paths = list(chain(yaml_dir.glob("*.yaml"), yaml_dir.glob("*.yml")))
 
     # sort by file names to allow explicit ordering with "1-name1", "2-name2", etc
     config_file_paths.sort(key=lambda p: extract_leading_int(p.stem))
@@ -89,6 +81,13 @@ def load_resource_cfgs_from_yaml(
             if field not in data:
                 data[field] = getattr(app_config, field)
         configs[prefix] = ResourceConfig.model_validate_cleanly(data, extra="ignore")
+
+    if not configs:
+        raise ValueError(
+            "you didn't create any resource config yaml files, or provided the wrong "
+            "path for resource_config_path"
+        )
+    print(f"{pformat(configs)}")
 
     return configs
 

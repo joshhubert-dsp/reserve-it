@@ -45,7 +45,7 @@ class AppDependencies:
 @validate_call
 def build_app(
     app_config: AppConfig | YamlPath,
-    resource_config_path: DirectoryPath | YamlPath,
+    resource_config_path: DirectoryPath,
     sqlite_dir: DirectoryPath,
     gcal_cred_path: FilePath,
     gcal_token_path: FilePath | None = None,
@@ -60,8 +60,8 @@ def build_app(
     Args:
         app_config (AppConfig | YamlPath): Either an AppConfig object, or a path to a
             yaml file to instantiate one from.
-        resource_config_path (DirectoryPath | YamlPath): Path to a single resource
-            config yaml file, or a folder full of them.
+        resource_config_path (DirectoryPath): Path to a folder full of resource config
+            yaml files.
         sqlite_dir (DirectoryPath): Path to a folder where sqlite databases will be
             generated and stored. Each resource generates a database, and the reminder
             job scheduler generates an additional one that serves all resources.

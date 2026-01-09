@@ -1,0 +1,206 @@
+{% extends "main.html" %}
+
+{% block htmltitle %} {{page.meta.name}} Reservation {% endblock %}
+
+{% block ri-content %}
+
+<h1 class="text-3xl font-semibold">
+  {{page.meta.emoji}} {{page.meta.name}} Reservation 
+</h1>
+<h2 class="text-l pb-4">
+  {{page.meta.description}}
+</h2>
+
+<!-- FORM -->
+<div class="card">
+    <!-- htmx injects success/error message here -->
+    <div id="result"></div>
+
+    <form
+        method="post"
+        id="reservation-form"
+        class="mt-2 flex flex-col gap-4 md:flex-row md:items-end"
+    >
+        <div class="reservation-input">
+            <label for="email" class="reservation-field"> Email </label>
+            <input
+                type="email"
+                name="email"
+                id="email"
+                class="reservation-box"
+                title="You'll receive a confirmation email (Google Calendar invitation) upon successful reservation and a reminder email {{page.meta.minutes_before_reminder}} minutes before."
+                required
+            />
+        </div>
+
+        {% for field in page.meta.custom_form_fields %}
+            <div class="reservation-input">
+                <label for="{{ field['name'] }}" class="reservation-field"> {{ field['label'] }} </label>
+                <input
+                    id="{{ field['name'] }}"
+                    {% for k, v in field.items() if k not in ("label", "required") %}
+                        {{ k }}="{{ v }}"
+                    {% endfor %}
+                    class="reservation-box"
+                    {% if field.required %}
+                        required
+                    {% endif %}
+                />
+            </div>
+        {% endfor %}
+
+        <div class="reservation-input">
+            <label for="date" class="reservation-field"> Date </label>
+            <input
+                type="date"
+                name="date"
+                id="date"
+                value="{{ today }}"
+                min="{{ today }}"
+                class="reservation-box"
+                title="The date for your reservation."
+                required
+            />
+        </div>
+
+        <div class="reservation-input">
+            <label for="start_time" class="reservation-field"> Start Time </label>
+            <select 
+                name="start_time" 
+                id="start_time"
+                class="reservation-box" 
+                title="The start time for your reservation on the selected date."
+                required
+            >
+                {% for t in time_slots %}
+                    <option value="{{ t }}">{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="reservation-input">
+            <label for="end_time" class="reservation-field"> End Time </label>
+            <select 
+                name="end_time" 
+                id="end_time"
+                class="reservation-box"
+                title="The end time for your reservation on the selected date."
+                required
+            >
+                {% for t in time_slots %}
+                    <option value="{{ t }}" {% if loop.index0  == 1 %} selected {% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {% if page.meta.allow_end_next_day %}
+            <div class="flex flex-col items-start gap-1 md:self-end">
+                <label for="end_next_day" class="reservation-field"> next day </label>
+                <input
+                    type="checkbox"
+                    name="end_next_day"
+                    id="end_next_day"
+                    class="check-box"
+                    title="Check this box to set End Time to the next day."
+                />
+            </div>
+        {% endif %}
+
+        {% if page.meta.allow_shareable %}
+            <div class="flex flex-col items-start gap-1 md:self-end">
+                <label for="shareable" class="reservation-field"> ok to share </label>
+                <input
+                    type="checkbox"
+                    name="shareable"
+                    id="shareable"
+                    class="check-box"
+                    title="Check this box if you're willing to share the resource during your reservation."
+                />
+            </div>
+        {% endif %}
+        <div class="flex flex-col items-start gap-1 md:self-end">
+            <label for="reminder" class="reservation-field"> reminder </label>
+            <input
+                type="checkbox"
+                name="reminder"
+                id="reminder"
+                class="check-box"
+                title="Check this box to receive a reminder email before your reservation, if reserving more than {{page.meta.minutes_before_reminder}} minutes ahead."
+            />
+        </div>
+
+        <div class="flex gap-2 md:self-end">
+            <button
+                type="button"
+                hx-post="{{ page.meta.route_prefix }}/reserve"
+                hx-target="#result"
+                hx-swap="innerHTML"
+                hx-include="#reservation-form"
+                title="Submit your reservation."
+                class="submit-button bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800"
+            >
+                Reserve
+            </button>
+            
+            <button
+                type="button"
+                hx-post="{{ page.meta.route_prefix }}/cancel"
+                hx-target="#result"
+                hx-swap="innerHTML"
+                hx-include="#reservation-form"
+                title="Cancel your reservation. Any reservation matching your info that falls in the designated timespan will be removed."
+                class="submit-button bg-red-600 hover:bg-red-700 active:bg-red-800"
+            >
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- OPTIONAL IMAGE -->
+{% if page.meta.image %}
+    <div class="card">
+        <div class="flex justify-center">
+            <img
+                src="{{ url_for('images', path=page.meta.image.path.name) }}"
+                title="{{ page.meta.image.path.name }}"
+                alt="{{ page.meta.image.caption }}"
+                width="{{ page.meta.image.pixel_width or '' }}"
+                height="{{ page.meta.image.pixel_height or '' }}"
+                class="mx-auto"
+            >
+        </div>
+    </div>
+{% endif %}
+
+<!--OPTIONAL CALENDAR -->
+{% if page.meta.calendar_embed_url %}
+    <div class="card flex-1 overflow-hidden h-[80vh]">
+        <div id=calendar-wrapper class="calendar-style">
+            <iframe
+                src="{{ calendar_embed_url }}"
+                class="w-full h-full calendar-invert"
+                frameborder="0"
+            ></iframe>
+        </div>
+    </div>
+{% endif %}
+
+<!-- OPTIONAL CONTACT EMAIL -->
+{% if page.meta.contact_email %}
+    <p> 
+        Contact 
+
+        <button
+        type="button"
+        class="inline bg-none border-none text-blue-500 underline cursor-pointer hover:text-blue-700"
+        onclick="navigator.clipboard.writeText(this.textContent)"
+        >
+            {{ page.meta.contact_email }}
+        </button>
+
+        to report issues (click to copy). 
+    </p>
+{% endif %}
+
+{% endblock %}

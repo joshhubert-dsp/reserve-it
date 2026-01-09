@@ -1,0 +1,150 @@
+/* =========================
+   Card
+   ========================= */
+.ri-root .card {
+  background-color: var(--md-default-bg-color);
+  padding: 1.5rem; /* p-6 */
+  border-radius: 1rem; /* rounded-2xl */
+  box-shadow: var(--md-shadow-z2);
+}
+
+[data-md-color-scheme="slate"] .ri-root .card {
+  background-color: #1e293b; /* slate-800 */
+}
+
+/* =========================
+   Reservation input wrapper
+   ========================= */
+.ri-root .reservation-input {
+  flex: 1 1 0%;
+  min-width: 5rem;
+}
+
+/* =========================
+   Field label
+   ========================= */
+.ri-root .reservation-field {
+  display: block;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500;    /* font-medium */
+  color: #334155;      /* slate-700 */
+}
+
+[data-md-color-scheme="slate"] .ri-root .reservation-field {
+  color: #e2e8f0; /* slate-200 */
+}
+
+/* =========================
+   Input / select / textarea
+   ========================= */
+.ri-root .reservation-box {
+  margin-top: 0.25rem; /* mt-1 */
+  display: block;
+  width: 100%;
+  border-radius: 0.5rem; /* rounded-lg */
+
+  border: 1px solid #cbd5f5; /* slate-300 */
+  background-color: #ffffff;
+  color: #0f172a; /* slate-900 */
+
+  font-size: 0.875rem; /* text-sm */
+  padding: 0.5rem 0.75rem; /* px-3 py-2 */
+
+  outline: none;
+}
+
+[data-md-color-scheme="slate"] .ri-root .reservation-box {
+  border-color: #475569; /* slate-600 */
+  background-color: #020617; /* slate-900 */
+  color: #f1f5f9; /* slate-100 */
+}
+
+/* Placeholder text */
+.ri-root .reservation-box::placeholder {
+  color: #94a3b8; /* slate-400 */
+}
+
+[data-md-color-scheme="slate"] .ri-root .reservation-box::placeholder {
+  color: #64748b; /* slate-500 */
+}
+
+/* Focus ring */
+.ri-root .reservation-box:focus {
+  box-shadow: 0 0 0 2px #6366f1; /* indigo-500 */
+  border-color: #6366f1;
+}
+
+/* Explicit color scheme hint */
+.ri-root .reservation-box {
+  color-scheme: light;
+}
+[data-md-color-scheme="slate"] .ri-root .reservation-box {
+  color-scheme: dark;
+}
+
+/* =========================
+   Checkbox
+   ========================= */
+.ri-root .check-box {
+  width: 2rem;  /* w-8 */
+  height: 2rem; /* h-8 */
+  border-radius: 0.375rem;
+
+  border: 1px solid #cbd5f5; /* slate-300 */
+  background-color: #ffffff;
+  color: #4f46e5; /* indigo-600 */
+}
+
+[data-md-color-scheme="slate"] .ri-root .check-box {
+  border-color: #475569; /* slate-600 */
+  background-color: #020617; /* slate-900 */
+}
+
+.ri-root .check-box:focus {
+  box-shadow: 0 0 0 2px #6366f1; /* indigo-500 */
+  outline: none;
+}
+
+/* =========================
+   Submit button
+   ========================= */
+.ri-root .submit-button {
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 0.5rem; /* rounded-lg */
+  padding: 0.5rem 1.25rem; /* px-5 py-2 */
+
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 600;    /* font-semibold */
+
+  color: #ffffff;
+}
+
+/* md:w-auto */
+@media (min-width: 768px) {
+  .ri-root .submit-button {
+    width: auto;
+  }
+}
+
+/* =========================
+   Calendar container
+   ========================= */
+.ri-root .calendar-style {
+  border: 1px solid #e5e7eb; /* slate-200 */
+  border-radius: 0.5rem; /* rounded-lg */
+  height: 100%;
+}
+
+[data-md-color-scheme="slate"] .ri-root .calendar-style {
+  border-color: #334155; /* slate-700 */
+}
+
+
+/* calendar dark mode style  */
+[data-md-color-scheme="slate"] .calendar-invert {
+  filter: invert(1) hue-rotate(180deg) contrast(0.9);
+}
