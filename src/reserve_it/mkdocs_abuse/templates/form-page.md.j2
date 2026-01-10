@@ -1,0 +1,20 @@
+<!-- DON'T ALTER THIS FILE, IT'S A JINJA TEMPLATE NECESSARY FOR THE SITE BUILD -->
+
+---
+emoji: {{ resource.emoji | tojson }}
+name: {{ resource.name | tojson}}
+description: {{ resource.description | tojson }}
+minutes_before_reminder: {{ resource.minutes_before_reminder | tojson }}
+allow_end_next_day: {{ resource.allow_end_next_day | tojson }}
+allow_shareable: {{ resource.allow_shareable | tojson }}
+route_prefix: {{ resource.route_prefix | tojson }}
+image: "{{ (resource.image.model_dump(mode="json") if resource.image else None) | tojson }}"
+{% if resource.image %}
+image_path: "{{ resource.image.path }}"
+image_name: "{{ resource.image.path.name }}"
+{% endif %}
+contact_email: {{ resource.contact_email | tojson }}
+time_slots: {{ time_slots | tojson }}
+custom_form_fields: {{ custom_form_fields | tojson }}
+template: ri-form.html
+---

@@ -1,0 +1,51 @@
+site_name: set this in app-config.yaml
+
+theme:
+  name: material
+
+  palette:
+    # System Preference
+    - media: "(prefers-color-scheme)"
+      primary: blue
+      accent: deep purple
+      toggle:
+        icon: material/lightbulb-on-50
+        name: "Using system preference. Switch to dark mode"
+    # Dark Mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: deep purple
+      toggle:
+        icon: material/lightbulb-on-outline
+        name: "Using dark mode. Switch to light mode."
+    # Light Mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: deep purple
+      toggle:
+        icon: material/lightbulb-on
+        name: "Using light mode. Switch to system preference."
+
+plugins:
+  - reserve-it
+# markdown_extensions:
+# - pymdownx.emoji:
+#     emoji_index: !!python/name:material.extensions.emoji.twemoji
+#     emoji_generator: !!python/name:material.extensions.emoji.to_svg
+#   - attr_list
+#       options:
+#         custom_icons:
+#           - .icons
+#   - pymdownx.tabbed:
+#       alternate_style: true
+#   - admonition
+#   - pymdownx.details
+# extra_javascript:
+#   # htmx for form response update messages
+#   - https://unpkg.com/htmx.org@1.9.12
+
+# extra_css:
+#   - assets/reserve-it.css
+

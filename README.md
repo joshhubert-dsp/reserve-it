@@ -25,7 +25,7 @@ All it takes to build a resource reservation system website for your organizatio
     reservable resource.
 
 2.  Create an app config yaml file, like this:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=app-config-example.yaml) -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=example/app-config-example.yaml) -->
     <!-- The below code snippet is automatically added from app-config-example.yaml -->
 
     ```yaml
@@ -62,7 +62,7 @@ All it takes to build a resource reservation system website for your organizatio
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 3.  Create a folder of resource reservation config yaml files, one for each set of resources, like this:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=resource-config-examples/2-courts.yaml) -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=example/resource-config-examples/2-courts.yaml) -->
     <!-- The below code snippet is automatically added from resource-config-examples/2-courts.yaml -->
 
     ```yaml
@@ -119,7 +119,7 @@ All it takes to build a resource reservation system website for your organizatio
 
 4.  Write a simple python script to define custom form input validation and file paths,
     and then build the app server:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=server_example.py) -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=example/server_example.py) -->
     <!-- The below code snippet is automatically added from server_example.py -->
 
     ```py

@@ -2,7 +2,7 @@
 
 {% block htmltitle %} {{page.meta.name}} Reservation {% endblock %}
 
-{% block ri-content %}
+{% block content %}
 
 <style>
   .ri-title {
@@ -131,13 +131,13 @@
                 type="date"
                 name="date"
                 id="date"
-                value="{{ today }}"
-                min="{{ today }}"
                 class="reservation-box"
                 title="The date for your reservation."
                 required
             />
-        </div>
+          </div>
+          <!-- value="{{ today }}" -->
+          <!-- min="{{ today }}" -->
 
         <div class="reservation-input">
             <label for="start_time" class="reservation-field"> Start Time </label>
@@ -238,11 +238,11 @@
     <div class="card">
         <div style="display: flex; justify-content: center;">
             <img
-                src="{{ page.meta.image.path }}"
-                title="{{ page.meta.image.path.name }}"
-                alt="{{ page.meta.image.caption }}"
-                width="{{ page.meta.image.pixel_width or '' }}"
-                height="{{ page.meta.image.pixel_height or '' }}"
+                src="{{ page.meta.image_path }}"
+                title="{{ page.meta.image_name }}"
+                alt="{{ page.meta.image['caption'] }}"
+                width="{{ page.meta.image['pixel_width'] or '' }}"
+                height="{{ page.meta.image['pixel_height'] or '' }}"
                 style="display: block; margin: 0 auto;"
             >
         </div>
@@ -250,20 +250,20 @@
 {% endif %}
 
 <!-- OPTIONAL CALENDAR, raw for dynamic content not supplied until runtime -->
-{% raw %}
-{% if calendar_embed_url %}
-    <div class="card calendar-card">
-        <div id=calendar-wrapper class="calendar-style">
-            <iframe
-                src="{{ calendar_embed_url }}"
-                class="calendar-invert"
-                style="width: 100%; height: 100%;"
-                frameborder="0"
-            ></iframe>
-        </div>
-    </div>
-{% endif %}
-{% endraw %}
+<!-- {% raw %} -->
+<!-- {% if calendar_embed_url %} -->
+    <!-- <div class="card calendar-card"> -->
+        <!-- <div id=calendar-wrapper class="calendar-style"> -->
+            <!-- <iframe -->
+                <!-- src="{{ calendar_embed_url }}" -->
+                <!-- class="calendar-invert" -->
+                <!-- style="width: 100%; height: 100%;" -->
+                <!-- frameborder="0" -->
+            <!-- ></iframe> -->
+        <!-- </div> -->
+    <!-- </div> -->
+<!-- {% endif %} -->
+<!-- {% endraw %} -->
 
 <!-- OPTIONAL CONTACT EMAIL -->
 {% if page.meta.contact_email %}

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import tempfile
 from datetime import date, datetime, timedelta
 
 from pydantic import BaseModel, DirectoryPath, ValidationError
 
+from reserve_it import MKDOCS_ROOT
 from reserve_it.app.utils import load_resource_cfgs_from_yaml
 from reserve_it.models.app_config import AppConfig
 from reserve_it.models.field_types import AM_PM_TIME_FORMAT, YamlPath
@@ -27,11 +29,20 @@ Key ideas:
 - `on_post_build`: copy packaged assets into the built `site/` directory (so those URLs exist).
 """
 
-import re
+# Python 3.9+
+import importlib.resources
 import shutil
 from pathlib import Path
 
-from jinja2 import Environment, PackageLoader, StrictUndefined, select_autoescape
+from jinja2 import (
+    ChoiceLoader,
+    Environment,
+    FileSystemLoader,
+    PackageLoader,
+    StrictUndefined,
+    select_autoescape,
+)
+from material.extensions.emoji import to_svg, twemoji
 from mkdocs.config import config_options
 from mkdocs.config.base import Config
 from mkdocs.exceptions import ConfigurationError
@@ -44,24 +55,24 @@ from mkdocs.structure.pages import Page
 # -----------------------------
 
 
-def slugify(s: str) -> str:
-    """
-    Basic slugify:
-    - lowercases
-    - turns spaces/underscores into '-'
-    - strips repeated '-'
+# def slugify(s: str) -> str:
+#     """
+#     Basic slugify:
+#     - lowercases
+#     - turns spaces/underscores into '-'
+#     - strips repeated '-'
 
-    This is intentionally simple and dependency-free.
-    """
-    s = s.strip().lower()
-    s = re.sub(r"[^a-z0-9 _-]+", "", s)
-    s = re.sub(r"[\s_]+", "-", s)
-    s = re.sub(r"-{2,}", "-", s)
-    return s.strip("-") or "resource"
+#     This is intentionally simple and dependency-free.
+#     """
+#     s = s.strip().lower()
+#     s = re.sub(r"[^a-z0-9 _-]+", "", s)
+#     s = re.sub(r"[\s_]+", "-", s)
+#     s = re.sub(r"-{2,}", "-", s)
+#     return s.strip("-") or "resource"
 
 
 # Custom Assets: ship JS/CSS from package into site/ and auto-include them.
-ASSETS_DIR = Path("reserve-it-assets")
+ASSETS_DIR = Path("assets/reserve-it")
 ASSETS = {
     "js_local": [],
     "js_remote": ["https://unpkg.com/htmx.org@1.9.12"],
@@ -72,6 +83,8 @@ TEMPLATES = {
     "resource_page": "form-page.md.j2",
     "index_page": "index.md.j2",
 }
+# MARKDOWN_EXTENSIONS = ["pymdownx.frontmatter"]
+
 
 # -----------------------------------
 # The actual MkDocs plugin class
@@ -133,12 +146,15 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         # Stash resources so multiple hooks can access them.
         self.resource_configs: dict[str, ResourceConfig] = {}
+        self.app_config: AppConfig | None = None
+        self._tmp: tempfile.TemporaryDirectory | None = None
+        self._plugin_template_dir: Path | None = None
 
         # Jinja environment for rendering templates FROM THIS INSTALLED PACKAGE.
         # - PackageLoader points at reserve_it_mkdocs/templates
         # - StrictUndefined makes missing variables fail loudly (good for debugging)
         self._jinja = Environment(
-            loader=PackageLoader("reserve_it", "templates"),
+            loader=PackageLoader("reserve_it", "mkdocs_abuse/templates"),
             undefined=StrictUndefined,
             autoescape=select_autoescape(enabled_extensions=()),
             trim_blocks=True,
@@ -165,6 +181,18 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             # MkDocs wants ConfigurationError for pretty output
             raise ConfigurationError(str(e)) from e
 
+        self.app_config = AppConfig.from_yaml(self.cfg.app_config)
+        self.resource_configs = load_resource_cfgs_from_yaml(
+            self.cfg.resource_config_dir, self.app_config
+        )
+
+        # if not config.get("site_name"):
+        config["site_name"] = self.app_config.title
+
+        self._extract_templates(config)
+        self._add_markdown_exts(config)
+        # config["markdown_extensions"] += MARKDOWN_EXTENSIONS
+
         if self.cfg.assets_enabled:
             # MkDocs will emit <script src="..."> for each entry in extra_javascript.
             # It will emit <link rel="stylesheet" href="..."> for each entry in extra_css.
@@ -172,18 +200,115 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             extra_css = config.get("extra_css", [])
 
             for js in ASSETS.get("js_local", []):
-                extra_js.append(ASSETS_DIR / js)
+                extra_js.append(str(ASSETS_DIR / js))
 
             for js in ASSETS.get("js_remote", []):
                 extra_js.append(js)
 
             for css in ASSETS.get("css", []):
-                extra_css.append(ASSETS_DIR / css)
+                extra_css.append(str(ASSETS_DIR / css))
 
             config["extra_javascript"] = extra_js
             config["extra_css"] = extra_css
 
         return config
+
+    def _extract_templates(self, config):
+        """
+        Extract packaged templates to a real filesystem directory.
+        Jinja2's FileSystemLoader needs actual files.
+        """
+        self._tmp = tempfile.TemporaryDirectory(prefix="reserve_it_templates_")
+        out_dir = Path(self._tmp.name)
+
+        # reserve_it/templates inside your installed package
+        pkg_templates = importlib.resources.files("reserve_it.mkdocs_abuse").joinpath(
+            "templates"
+        )
+
+        # Copy templates out of the package into the temp dir
+        for res in pkg_templates.rglob("*"):
+            if res.is_dir():
+                continue
+            rel = res.relative_to(pkg_templates)
+            dst = out_dir / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_bytes(res.read_bytes())
+
+        self._plugin_template_dir = out_dir
+        return config
+
+    def on_env(self, env, config, files):
+        """
+        Add plugin templates to the Jinja loader search path.
+        This makes `template: ri-form.html` resolvable.
+        """
+        if not self._plugin_template_dir:
+            return env
+
+        plugin_loader = FileSystemLoader(str(self._plugin_template_dir))
+
+        # Put plugin loader AFTER user's overrides but BEFORE theme defaults.
+        # Usually env.loader is already a ChoiceLoader; we just extend it.
+        if isinstance(env.loader, ChoiceLoader):
+            loaders = list(env.loader.loaders)
+            env.loader = ChoiceLoader(loaders + [plugin_loader])
+        else:
+            env.loader = ChoiceLoader([env.loader, plugin_loader])
+
+        return env
+
+    def _add_markdown_exts(self, config):
+        # 1) Ensure pymdownx.emoji is enabled
+        mdx = config.setdefault("markdown_extensions", [])
+        if "pymdownx.emoji" not in mdx:
+            mdx.append("pymdownx.emoji")
+
+        # 2) Ensure its config exists and set the callables
+        # MkDocs commonly uses `mdx_configs`; some setups use `markdown_extensions_configs`
+        cfg_key = (
+            "mdx_configs" if "mdx_configs" in config else "markdown_extensions_configs"
+        )
+        mdx_cfgs = config.setdefault(cfg_key, {})
+        emoji_cfg = mdx_cfgs.setdefault("pymdownx.emoji", {})
+
+        # Set/override the bits you want
+        emoji_cfg["emoji_index"] = twemoji
+        emoji_cfg["emoji_generator"] = to_svg
+
+    # def _add_markdown_exts(self, config):
+    #     # MkDocs stores extension names in a list.
+    #     mdx = config.get("markdown_extensions") or []
+    #     existing = set(mdx)
+
+    #     for ext in self.config["markdown_extensions"]:
+    #         if ext not in existing:
+    #             mdx.append(ext)
+    #             existing.add(ext)
+
+    #     config["markdown_extensions"] = mdx
+
+    #     # Extension configs live in a dict keyed by extension name.
+    #     # MkDocs historically used `markdown_extensions_configs`, but in many
+    #     # setups you'll see `mdx_configs`. We'll support both.
+    #     mdx_cfg_key = (
+    #         "mdx_configs" if "mdx_configs" in config else "markdown_extensions_configs"
+    #     )
+    #     mdx_cfg = dict(config.get(mdx_cfg_key) or {})
+
+    #     for ext, ext_cfg in (self.config["markdown_extensions_config"] or {}).items():
+    #         if ext_cfg is None:
+    #             continue
+    #         if not isinstance(ext_cfg, Mapping):
+    #             raise TypeError(
+    #                 f"markdown_extensions_config[{ext!r}] must be a mapping, got {type(ext_cfg)}"
+    #             )
+    #         # Merge (plugin config wins only where it sets keys)
+    #         merged = dict(mdx_cfg.get(ext) or {})
+    #         merged.update(ext_cfg)
+    #         mdx_cfg[ext] = merged
+
+    #     config[mdx_cfg_key] = mdx_cfg
 
     # -----------------------------
     # Hook: on_files
@@ -198,15 +323,11 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         to supply their contents as strings.
         """
 
-        self.resource_configs = load_resource_cfgs_from_yaml(
-            self.cfg.resource_config_dir, AppConfig.from_yaml(self.cfg.app_config)
-        )
-
         # 2) For each resource, add a new virtual Markdown page.
 
-        for name, cfg in self.resource_configs.items():
+        for cfg in self.resource_configs.values():
             # within the virtual docs tree
-            src_path = f"{name}.md"
+            src_path = f"{cfg.name}.md"
             # src_path = self.cfg.docs_out_dir / f"{name}.md"
 
             # Generate Markdown content now (via Jinja template).
@@ -279,9 +400,8 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         target_dir = config["site_dir"] / ASSETS_DIR
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        # Our packaged static assets live at: reserve_it_mkdocs/static/*
-        pkg_root = Path(__file__).resolve().parent
-        static_dir = pkg_root / ASSETS_DIR
+        # Our packaged static assets live at:
+        static_dir = MKDOCS_ROOT / "assets"
 
         # Copy whatever files are declared in config.
         for name in js_files + css_files:
@@ -290,6 +410,12 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
                 # Fail loudly: missing asset in package = broken install.
                 raise FileNotFoundError(f"reserve-it asset missing from package: {src}")
             shutil.copy2(src, target_dir / name)
+
+    def on_shutdown(self):
+        # Clean up temp directory
+        if self._tmp is not None:
+            self._tmp.cleanup()
+            self._tmp = None
 
     # -----------------------------
     # Jinja rendering helpers
