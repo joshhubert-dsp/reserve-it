@@ -2,6 +2,7 @@ import asyncio
 import re
 from dataclasses import dataclass
 from itertools import chain
+from pathlib import Path
 from time import time
 from typing import cast
 from urllib.parse import quote_plus, urlencode
@@ -58,10 +59,10 @@ class ResourceBundle:
 
 
 def load_resource_cfgs_from_yaml(
-    yaml_dir: DirectoryPath, app_config: AppConfig
+    config_dir: DirectoryPath, app_config: AppConfig
 ) -> dict[str, ResourceConfig]:
     configs: dict[str, ResourceConfig] = {}
-    config_file_paths = list(chain(yaml_dir.glob("*.yaml"), yaml_dir.glob("*.yml")))
+    config_file_paths = list(chain(config_dir.glob("*.yaml"), config_dir.glob("*.yml")))
 
     # sort by file names to allow explicit ordering with "1-name1", "2-name2", etc
     config_file_paths.sort(key=lambda p: extract_leading_int(p.stem))
@@ -78,6 +79,11 @@ def load_resource_cfgs_from_yaml(
         data["custom_form_fields"] = data.get("custom_form_fields", []) + (
             app_config.custom_form_fields
         )
+
+        # if relative, make it relative to config_dir
+        if "image" in data and not Path(data["image"]["path"]).is_absolute():
+            data["image"]["path"] = config_dir / data["image"]["path"]
+
         for field in DEFAULT_TO_APP_CONFIG_FIELDS:
             if field not in data:
                 data[field] = getattr(app_config, field)

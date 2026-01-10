@@ -80,7 +80,7 @@ ASSETS = {
 }
 # Template names inside this package's templates/ directory.
 TEMPLATES = {
-    "resource_page": "form-page.md.j2",
+    "resource_page": "form_page.md.j2",
     "index_page": "index.md.j2",
 }
 # MARKDOWN_EXTENSIONS = ["pymdownx.frontmatter"]
@@ -99,7 +99,6 @@ class ReserveItPluginConfig(Config):
 
     app_config = config_options.Type(str, default="app-config.yaml")
     resource_config_dir = config_options.Type(str, default="resource-configs")
-    image_dir = config_options.Type(str, default="resource-configs")
     assets_enabled = config_options.Type(bool, default=True)
     # Base path that your frontend calls for your FastAPI endpoints.
     # api_base = config_options.Type(str, default="/api")
@@ -111,7 +110,6 @@ class ReserveItPluginConfig(Config):
 class ConfigValidator(BaseModel):
     app_config: YamlPath
     resource_config_dir: DirectoryPath
-    image_dir: DirectoryPath
     assets_enabled: bool
     # Base path that your frontend calls for your FastAPI endpoints.
     # api_base: str
@@ -188,6 +186,7 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         # if not config.get("site_name"):
         config["site_name"] = self.app_config.title
+        # config["use_directory_urls"] = True
 
         self._extract_templates(config)
         self._add_markdown_exts(config)
@@ -222,8 +221,8 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         out_dir = Path(self._tmp.name)
 
         # reserve_it/templates inside your installed package
-        pkg_templates = importlib.resources.files("reserve_it.mkdocs_abuse").joinpath(
-            "templates"
+        pkg_templates = Path(
+            importlib.resources.files("reserve_it.mkdocs_abuse").joinpath("templates")
         )
 
         # Copy templates out of the package into the temp dir
@@ -328,7 +327,6 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         for cfg in self.resource_configs.values():
             # within the virtual docs tree
             src_path = f"{cfg.name}.md"
-            # src_path = self.cfg.docs_out_dir / f"{name}.md"
 
             # Generate Markdown content now (via Jinja template).
             self._generated_markdown[src_path] = self._render_resource_page_markdown(

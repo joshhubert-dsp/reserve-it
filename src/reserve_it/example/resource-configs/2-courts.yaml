@@ -40,8 +40,8 @@ custom_form_fields:
     required: True
 
 # Optionally, specify a path to a descriptive image for this resource, displayed on the
-# form webpage.
+# form webpage. Relative file paths will resolve to resource-configs dir.
 image:
-  path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
+  path: courts.jpg
   caption: court map
   pixel_width: 800

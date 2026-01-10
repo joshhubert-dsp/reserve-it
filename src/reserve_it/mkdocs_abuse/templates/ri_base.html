@@ -1,12 +1,11 @@
-# TODO
 {% extends "main.html" %}
-
 {% block content %}
-    <div class="ri-root"></div>
-      <!-- <header class="flex flex-col gap-y-4"> -->
-      <!-- <main class="flex-1 space-y-4" > -->
-      {% block ri-content %}{% endblock %}
-    </div>
+  {{ super() }}
+  <div class="ri-root">
+    <!-- <header class="flex flex-col gap-y-4"> -->
+    <!-- <main class="flex-1 space-y-4" > -->
+    {% block ri_content %}{% endblock %}
+  </div>
 {% endblock %}
 
 

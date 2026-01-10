@@ -1,5 +1,5 @@
 # FastAPI app title, also used for home page title if multiple resources are configured
-title: Reserve-It Form Server Example
+title: Reserve-It Example
 # FastAPI app description, also used for home page subtitle if multiple resources are
 # configured
 description: Form server for shared community amenity/resource reservations.

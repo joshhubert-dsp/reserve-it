@@ -48,7 +48,6 @@ def build_app(
     sqlite_dir: DirectoryPath,
     gcal_cred_path: FilePath,
     gcal_token_path: FilePath | None = None,
-    image_dir: DirectoryPath | None = None,
     request_classes: (
         type[ReservationRequest] | dict[str, type[ReservationRequest]]
     ) = ReservationRequest,
@@ -72,12 +71,6 @@ def build_app(
             save the refresh token and temporary auth token to on first authenticating
             your credentials, to reduce token churn. If passed, the token is automatically
             refreshed if expired. Defaults to None, in which case no tokens are saved.
-        image_dir (DirectoryPath | None, optional): Path to a folder where images you
-            want to display on reservation webpages are stored, to be mounted to the
-            app. These can be helpful diagrams or just pretty pictures, whatever your
-            heart desires. All image files must be in the root of this folder (no
-            nesting). You can have one image per page, for now. Defaults to
-            None.
         request_classes (type[ReservationRequest] | dict[str, type[ReservationRequest]], optional):
             Either a single global ReservationRequest model subclass to use for form input
             validation for all resources, one a dict of one subclass per resource, with
@@ -175,12 +168,10 @@ def _configure_app_state(
     app: FastAPI,
     app_config: AppConfig,
     dependencies: AppDependencies,
-    image_dir: DirectoryPath,
 ) -> None:
     app.state.config = app_config
     app.state.resource_bundles = dependencies.resource_bundles
     app.state.calendar_service = dependencies.calendar_service
-    app.state.image_dir = image_dir
 
 
 def _register_resource_routes(

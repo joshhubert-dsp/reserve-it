@@ -154,7 +154,6 @@ All it takes to build a resource reservation system website for your organizatio
             sqlite_dir=PROJECT_ROOT / "sqlite_dbs",
             gcal_cred_path=PROJECT_ROOT / "client_secret.json",
             gcal_token_path=PROJECT_ROOT / "auth_token.json",
-            image_dir=PROJECT_ROOT / "resource-config-examples",
             request_classes=PasswordProtectedRequest,
         )
         uvicorn.run(app, host="127.0.0.1", port=8000)

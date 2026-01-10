@@ -164,3 +164,82 @@
     align-self: flex-end;
   }
 }
+
+
+/* formatting stuff */
+
+.ri-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 600;
+  }
+
+  .ri-subtitle {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    padding-bottom: 1rem;
+  }
+
+  .reservation-form-layout {
+    max-width: 50%;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-button-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .button-reserve {
+    background-color: #4f46e5;
+  }
+  .button-reserve:hover {
+    background-color: #4338ca;
+  }
+  .button-reserve:active {
+    background-color: #3730a3;
+  }
+
+  .button-cancel {
+    background-color: #dc2626;
+  }
+  .button-cancel:hover {
+    background-color: #b91c1c;
+  }
+  .button-cancel:active {
+    background-color: #991b1b;
+  }
+
+  .calendar-card {
+    flex: 1 1 0%;
+    overflow: hidden;
+    height: 80vh;
+  }
+
+  .contact-email-button {
+    display: inline;
+    background: none;
+    border: none;
+    color: #3b82f6;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+  .contact-email-button:hover {
+    color: #1d4ed8;
+  }
+
+  @media (min-width: 768px) {
+    .reservation-form-layout {
+      max-width: 50%;
+      flex-direction: row;
+      align-items: flex-end;
+    }
+
+    .form-button-row {
+      align-self: flex-end;
+    }
+  }

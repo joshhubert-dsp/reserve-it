@@ -1,91 +1,25 @@
-{% extends "main.html" %}
+{% extends "ri_base.html" %}
 
-{% block htmltitle %} {{page.meta.name}} Reservation {% endblock %}
+<!-- {% block htmltitle %} {{page.meta.name}} Reservation {% endblock %} -->
 
-{% block content %}
+{% block styles %} 
 
+{{ super() }}
 <style>
-  .ri-title {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-    font-weight: 600;
-  }
-
-  .ri-subtitle {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    padding-bottom: 1rem;
-  }
-
-  .reservation-form-layout {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .form-button-row {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .button-reserve {
-    background-color: #4f46e5;
-  }
-  .button-reserve:hover {
-    background-color: #4338ca;
-  }
-  .button-reserve:active {
-    background-color: #3730a3;
-  }
-
-  .button-cancel {
-    background-color: #dc2626;
-  }
-  .button-cancel:hover {
-    background-color: #b91c1c;
-  }
-  .button-cancel:active {
-    background-color: #991b1b;
-  }
-
-  .calendar-card {
-    flex: 1 1 0%;
-    overflow: hidden;
-    height: 80vh;
-  }
-
-  .contact-email-button {
-    display: inline;
-    background: none;
-    border: none;
-    color: #3b82f6;
-    text-decoration: underline;
-    cursor: pointer;
-    padding: 0;
-  }
-  .contact-email-button:hover {
-    color: #1d4ed8;
-  }
-
-  @media (min-width: 768px) {
-    .reservation-form-layout {
-      flex-direction: row;
-      align-items: flex-end;
-    }
-
-    .form-button-row {
-      align-self: flex-end;
-    }
-  }
+  
 </style>
 
-<h1 class="ri-title">
+{% endblock %}
+
+
+{% block ri_content %}
+
+<!-- <h1 class="ri-title">
   {{page.meta.emoji}} {{page.meta.name}} Reservation 
-</h1>
-<h2 class="ri-subtitle">
+</h1> -->
+<h3 class="ri-subtitle">
   {{page.meta.description}}
-</h2>
+</h3>
 
 <!-- FORM -->
 <div class="card">
@@ -148,7 +82,7 @@
                 title="The start time for your reservation on the selected date."
                 required
             >
-                {% for t in time_slots %}
+                {% for t in page.meta.time_slots %}
                     <option value="{{ t }}">{{ t }}</option>
                 {% endfor %}
             </select>
@@ -163,7 +97,7 @@
                 title="The end time for your reservation on the selected date."
                 required
             >
-                {% for t in time_slots %}
+                {% for t in page.meta.time_slots %}
                     <option value="{{ t }}" {% if loop.index0  == 1 %} selected {% endif %}>{{ t }}</option>
                 {% endfor %}
             </select>

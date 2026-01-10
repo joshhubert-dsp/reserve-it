@@ -83,8 +83,11 @@ DEFAULT_TO_APP_CONFIG_FIELDS = (
     "calendar_shown",
     "contact_email",
 )
-"""These fields are duplicated between both AppConfig and ResourceConfig models. When a
-resource config yaml file is parsed, if any of these fields are not specified,  app if"""
+"""These required fields are duplicated between both AppConfig and ResourceConfig
+models. Supply them either globally in `app-config.yaml`, or per-resource in the
+resource-config yaml file. If they're specifid in both, the resource-config value takes
+precedence.
+"""
 
 
 class ResourceConfig(BaseSettings):
@@ -122,8 +125,11 @@ class ResourceConfig(BaseSettings):
             be shared. Defaults to False.
         emoji (str, optional): emoji symbol to append to the form page title. Defaults to ''.
         description (str, optional): descriptive sub-heading for the resource page. Defaults to ''.
-        image (ImageFile | None, optiona): Bundle object for image to display on
-            the webpage. Defaults to None.
+        image (ImageFile | None, optiona): Bundle object for image to display on the
+            webpage. Images can be helpful diagrams or just pretty pictures, whatever
+            your heart desires. All image files must be in the root of the
+            resource-configs dir (no nesting). You can have one image per page, for now.
+            Defaults to None.
         custom_form_fields (list[CustomFormField], optional): custom html form input fields to add
             for the resource page. Defaults to empty list.
         maximum_days_ahead (int | None, optional): Positive integer, how many days ahead the user
