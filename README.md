@@ -151,7 +151,7 @@ All it takes to build a resource reservation system website for your organizatio
         app = build_app(
             app_config=PROJECT_ROOT / "app-config-example.yaml",
             resource_config_path=PROJECT_ROOT / "resource-configs",
-            sqlite_dir=PROJECT_ROOT / "sqlite_dbs",
+            sqlite_dir=PROJECT_ROOT / "sqlite-dbs",
             gcal_cred_path=PROJECT_ROOT / "client_secret.json",
             gcal_token_path=PROJECT_ROOT / "auth_token.json",
             request_classes=PasswordProtectedRequest,

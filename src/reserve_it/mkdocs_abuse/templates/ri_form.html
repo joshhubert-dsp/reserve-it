@@ -48,18 +48,18 @@
     {% endfor %}
 
     <div class="reservation-input">
-        <label for="date" class="reservation-field"> Date </label>
-        <input
-            type="date"
-            name="date"
-            id="date"
-            class="reservation-box"
-            title="The date for your reservation."
-            required
-        />
-      </div>
-      <!-- value="{{ today }}" -->
-      <!-- min="{{ today }}" -->
+      <label for="date" class="reservation-field"> Date </label>
+      <input
+          type="date"
+          name="date"
+          id="date"
+          class="reservation-box"
+          title="The date for your reservation."
+          value="{{ today }}"
+          min="{{ today }}"
+          required
+      />
+    </div>
 
     <div class="reservation-input">
         <label for="start_time" class="reservation-field"> Start Time </label>

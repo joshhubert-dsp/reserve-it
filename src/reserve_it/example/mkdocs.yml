@@ -2,7 +2,6 @@ site_name: set this in app-config.yaml
 
 theme:
   name: material
-  icon: null
 
   palette:
     # System Preference
@@ -31,22 +30,3 @@ theme:
 
 plugins:
   - reserve-it
-# markdown_extensions:
-# - pymdownx.emoji:
-#     emoji_index: !!python/name:material.extensions.emoji.twemoji
-#     emoji_generator: !!python/name:material.extensions.emoji.to_svg
-#   - attr_list
-#       options:
-#         custom_icons:
-#           - .icons
-#   - pymdownx.tabbed:
-#       alternate_style: true
-#   - admonition
-#   - pymdownx.details
-# extra_javascript:
-#   # htmx for form response update messages
-#   - https://unpkg.com/htmx.org@1.9.12
-
-# extra_css:
-#   - assets/reserve-it.css
-

@@ -1,0 +1,4 @@
+# reserve-it plugin default directory ignores
+.gcal-credentials
+sqlite-dbs
+site

@@ -15,6 +15,7 @@ from fastapi.concurrency import asynccontextmanager
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.templating import Jinja2Templates
 from gcsa.google_calendar import GoogleCalendar
 from google.oauth2.credentials import Credentials
 from loguru import logger
@@ -22,6 +23,7 @@ from pydantic import DirectoryPath, FilePath, ValidationError
 from sqlalchemy import Engine as SqlEngine
 from sqlmodel import SQLModel, create_engine
 
+from reserve_it.app.calendar_service import GoogleCalendarService
 from reserve_it.app.database import ReservationDatabase, create_session_factory
 from reserve_it.app.reminders import ReminderService
 from reserve_it.models.app_config import AppConfig
@@ -55,6 +57,15 @@ class ResourceBundle:
     resource_lock: asyncio.Lock | None = None
 
 
+@dataclass
+class AppDependencies:
+    resource_bundles: dict[str, ResourceBundle]
+    calendar_service: GoogleCalendarService
+
+    def __post_init__(self):
+        self.num_resources = len(self.resource_bundles)
+
+
 def load_resource_cfgs_from_yaml(
     config_dir: DirectoryPath, app_config: AppConfig
 ) -> dict[str, ResourceConfig]:
@@ -77,11 +88,6 @@ def load_resource_cfgs_from_yaml(
             app_config.custom_form_fields
         )
 
-        # NOTE: images are only handled for the static build
-        # if "image" in data:
-        #     data["image"]["path"] = data["image"]["path"]
-        # data["image"]["path"] = IMAGES_DEST / data["image"]["path"]
-
         for field in DEFAULT_TO_APP_CONFIG_FIELDS:
             if field not in data:
                 data[field] = getattr(app_config, field)
@@ -99,7 +105,7 @@ def load_resource_cfgs_from_yaml(
 
 def init_gcal(
     timezone: ZoneInfo,
-    gcal_cred_path: FilePath,
+    gcal_secret_path: FilePath,
     gcal_token_path: FilePath | None = None,
 ) -> GoogleCalendar:
     if gcal_token_path and gcal_token_path.exists():
@@ -108,7 +114,7 @@ def init_gcal(
         gcal = GoogleCalendar(credentials=creds, save_token=False)
     else:
         # initialize with client secrets auth, and store token
-        gcal = GoogleCalendar(credentials_path=gcal_cred_path, save_token=False)
+        gcal = GoogleCalendar(credentials_path=gcal_secret_path, save_token=False)
     if gcal_token_path:
         gcal_token_path.write_text(gcal.credentials.to_json())
 
@@ -220,6 +226,10 @@ def get_reminder_service(request: Request) -> ReminderService:
 
 def get_all_resource_bundles(request: Request) -> dict[str, ResourceBundle]:
     return cast(dict[str, ResourceBundle], request.app.state.resource_bundles)
+
+
+def get_form_templates(request: Request) -> Jinja2Templates:
+    return cast(Jinja2Templates, request.app.state.form_templates)
 
 
 def get_all_resource_cfgs(request: Request) -> dict[str, ResourceConfig]:

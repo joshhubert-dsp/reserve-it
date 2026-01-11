@@ -27,22 +27,28 @@ def serve_example(port: int = 8080):
 
 @app.command()
 def init(project_root: Path | None = None):
-    """Initializes a new reserve-it project with the necessary directories and files."""
+    """Initializes a new reserve-it project with the necessary directories and files,
+    copied directly from examples dir."""
     if not project_root:
         project_root = Path.cwd()
 
     for file_or_dir in EXAMPLE_ROOT.rglob("*"):
         relative = file_or_dir.relative_to(EXAMPLE_ROOT)
+
         if file_or_dir.is_file():
-            try:
-                (project_root / relative).write_text(
-                    (EXAMPLE_ROOT / relative).read_text("utf-8"), "utf-8"
-                )
-            except UnicodeDecodeError:  # not text, probably an image, don't need it
-                pass
+            dest = project_root / relative
+            if not dest.exists():
+                try:
+                    dest.write_text(file_or_dir.read_text("utf-8"), "utf-8")
+                except UnicodeDecodeError:  # not text, probably an image, don't need it
+                    pass
+            elif file_or_dir.name == ".gitignore":
+                # append to an existing gitignore
+                with open(dest, "a", encoding="utf-8") as f:
+                    f.write("\n" + file_or_dir.read_text("utf-8"))
 
         elif file_or_dir.is_dir():
-            (project_root / relative).mkdir()
+            (project_root / relative).mkdir(parents=True, exist_ok=True)
 
 
 if __name__ == "__main__":

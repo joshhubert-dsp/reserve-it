@@ -19,6 +19,7 @@ from reserve_it.app.utils import (
     ResourceBundle,
     build_calendar_embed_url,
     get_calendar_service,
+    get_form_templates,
     get_reminder_service,
     get_timezone,
 )
@@ -31,9 +32,8 @@ from reserve_it.models.resource_config import ResourceConfig
 
 
 async def get_form(request: Request, config: ResourceConfig):
-    # TODO figure out final template path
-    return TEMPLATES.TemplateResponse(
-        "form.html",
+    return get_form_templates(request).TemplateResponse(
+        f"{config.file_prefix}/index.html",
         {
             "request": request,
             "today": date.today().isoformat(),

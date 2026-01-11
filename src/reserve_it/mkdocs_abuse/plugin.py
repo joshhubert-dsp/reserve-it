@@ -72,11 +72,8 @@ JS_ASSETS = [js.name for js in ASSETS_SRC.glob("*.js")]
 
 REMOTE_JS = ["https://unpkg.com/htmx.org@1.9.12"]
 # Template names inside this package's templates/ directory.
-TEMPLATES = {
-    "resource_page": "form_page.md.j2",
-    "index_page": "index.md.j2",
-}
-# MARKDOWN_EXTENSIONS = ["pymdownx.frontmatter"]
+FORM_TEMPLATE = "form_page.md.j2"
+FORM_TEMPLATES_DIR = "form-templates"
 
 
 # -----------------------------------
@@ -335,7 +332,6 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             shutil.copy2(src, dest_dir / name)
 
         # copy over images, if provided
-
         image_rel_paths = [
             r.image.path for r in self.resource_configs.values() if r.image
         ]
@@ -343,13 +339,10 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             image_dest_dir = config["site_dir"] / IMAGES_DEST
             image_dest_dir.mkdir(parents=True)
             for ipath in image_rel_paths:
-                # if Path(ipath).is_absolute():
-                #     raise ValueError(
-                #         f"'{ipath}' must be relative to the resource-configs directory."
-                #     )
-
                 src = self.cfg.resource_config_dir / ipath
                 shutil.copy2(src, image_dest_dir / ipath)
+
+        self._copy_built_html_to_form_templates(config)
 
     def on_shutdown(self):
         # Clean up temp directory
@@ -367,8 +360,7 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         Custom Jinja step renders resource page Markdown using a template shipped in this package.
         Makes use of yaml frontmatter in the markdown page.
         """
-        tpl_name = TEMPLATES["resource_page"]
-        tpl = self._jinja.get_template(tpl_name)
+        tpl = self._jinja.get_template(FORM_TEMPLATE)
 
         dt_start = datetime.combine(date.today(), resource.day_start_time)
         dt_end = datetime.combine(date.today(), resource.day_end_time)
@@ -394,17 +386,27 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             time_slots=time_slots,
         )
 
-    # def _render_index_page_markdown(
-    #     self, resources: list[Resource], route_prefix: str, base_path: str
-    # ) -> str:
-    #     """
-    #     Render index page Markdown listing resources.
-    #     """
-    #     tpl_name = str(self.config["templates"]["index_page"])
-    #     tpl = self._jinja.get_template(tpl_name)
+    def _copy_built_html_to_form_templates(self, config) -> None:
+        site_dir = Path(config["site_dir"])
+        dest_root = site_dir / FORM_TEMPLATES_DIR
 
-    #     return tpl.render(
-    #         resources=resources,
-    #         route_prefix=route_prefix,
-    #         base_path=base_path,
-    #     )
+        for cfg in self.resource_configs.values():
+            src = self._find_built_html(site_dir, cfg.file_prefix)
+            if src is None:
+                continue
+            rel = src.relative_to(site_dir)
+            dest = dest_root / rel
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dest)
+
+    def _find_built_html(self, site_dir: Path, file_prefix: str) -> Path | None:
+        candidates = [
+            site_dir / Path(file_prefix) / "index.html",
+            site_dir / f"{file_prefix}.html",
+        ]
+
+        for path in candidates:
+            if path.exists():
+                return path
+
+        return None

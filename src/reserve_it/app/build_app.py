@@ -1,13 +1,13 @@
-from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, FastAPI, Request
+from fastapi import APIRouter, FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pydantic import DirectoryPath, FilePath, ValidationError, validate_call
 
-from reserve_it import TEMPLATES
 from reserve_it.app.calendar_service import GoogleCalendarService
 from reserve_it.app.route_helpers import (
     bind_post_endpoint,
@@ -16,9 +16,9 @@ from reserve_it.app.route_helpers import (
     submit_reservation,
 )
 from reserve_it.app.utils import (
+    AppDependencies,
     ResourceBundle,
     app_lifespan,
-    get_all_resource_cfgs,
     handle_validation_error,
     init_dbs_and_bundles,
     init_gcal,
@@ -31,23 +31,23 @@ from reserve_it.models.field_types import YamlPath
 from reserve_it.models.reservation_request import ReservationRequest
 from reserve_it.models.resource_config import ResourceConfig
 
-
-@dataclass
-class AppDependencies:
-    resource_bundles: dict[str, ResourceBundle]
-    calendar_service: GoogleCalendarService
-
-    def __post_init__(self):
-        self.num_resources = len(self.resource_bundles)
+DEFAULT_APP_CONFIG_FILE = "app-config.yaml"
+DEFAULT_RESOURCE_CONFIG_DIR = "resource-configs"
+DEFAULT_SQLITE_DIR = "sqlite-dbs"
+DEFAULT_GCAL_DIR = Path(".gcal-credentials")
+DEFAULT_GCAL_SECRET_FILE = DEFAULT_GCAL_DIR / "client-secret.json"
+DEFAULT_GCAL_TOKEN_FILE = DEFAULT_GCAL_DIR / "auth-token.json"
+DEFAULT_SITE_DIR = "site"
 
 
 @validate_call
 def build_app(
-    app_config: AppConfig | YamlPath,
-    resource_config_path: DirectoryPath,
-    sqlite_dir: DirectoryPath,
-    gcal_cred_path: FilePath,
+    app_config: AppConfig | YamlPath | None = None,
+    resource_config_path: DirectoryPath | None = None,
+    sqlite_dir: DirectoryPath | None = None,
+    gcal_secret_path: FilePath | None = None,
     gcal_token_path: FilePath | None = None,
+    site_dir: DirectoryPath | None = None,
     request_classes: (
         type[ReservationRequest] | dict[str, type[ReservationRequest]]
     ) = ReservationRequest,
@@ -63,9 +63,9 @@ def build_app(
         sqlite_dir (DirectoryPath): Path to a folder where sqlite databases will be
             generated and stored. Each resource generates a database, and the reminder
             job scheduler generates an additional one that serves all resources.
-        gcal_cred_path (FilePath): Path to the json file holding static OAuth client ID
+        gcal_secret_path (FilePath): Path to the json file holding static OAuth client ID
             desktop app credentials you generated and downloaded from
-            `https://console.cloud.google.com/apis/credentials`, `client_secret.json` or
+            `https://console.cloud.google.com/apis/credentials`, `client-secret.json` or
             similarly named.
         gcal_token_path (FilePath | None, optional): If desired, path to a json file to
             save the refresh token and temporary auth token to on first authenticating
@@ -81,6 +81,20 @@ def build_app(
     Returns:
         FastAPI: The FastAPI instance for your app.
     """
+    # is this TOO EASY?
+    if not app_config:
+        app_config = Path.cwd() / DEFAULT_APP_CONFIG_FILE
+    if not resource_config_path:
+        resource_config_path = Path.cwd() / DEFAULT_RESOURCE_CONFIG_DIR
+    if not sqlite_dir:
+        sqlite_dir = Path.cwd() / DEFAULT_SQLITE_DIR
+    if not gcal_secret_path:
+        gcal_secret_path = Path.cwd() / DEFAULT_GCAL_SECRET_FILE
+    if not gcal_token_path:
+        gcal_token_path = Path.cwd() / DEFAULT_GCAL_TOKEN_FILE
+    if not site_dir:
+        site_dir = Path.cwd() / DEFAULT_SITE_DIR
+
     if isinstance(app_config, Path):
         app_config = AppConfig.from_yaml(app_config)
 
@@ -89,28 +103,21 @@ def build_app(
         request_classes,
         sqlite_dir,
         app_config,
-        gcal_cred_path,
+        gcal_secret_path,
         gcal_token_path,
     )
 
     app = _create_app(app_config, sqlite_dir)
-    _configure_app_state(app, app_config, dependencies, image_dir)
+    _configure_app_state(app, app_config, dependencies, site_dir)
 
     app.add_exception_handler(RequestValidationError, log_request_validation_error)
     app.add_exception_handler(ValidationError, handle_validation_error)
     app.add_exception_handler(Exception, log_unexpected_exception)
 
-    # add directory for js files
-    # app.mount("/static", StaticFiles(directory=SOURCE_ROOT / "static"), name="static")
-    # # add directory for optional webpage images
-    # if image_dir:
-    #     app.mount("/images", StaticFiles(directory=image_dir), name="images")
+    # add directory for static built files
+    app.mount("/", StaticFiles(directory=site_dir), name="static")
 
     _register_resource_routes(app, dependencies.resource_bundles, app_config)
-
-    # if there's only one resource, then no need for a separate home page
-    # if dependencies.num_resources > 1:
-    #     _register_home_route(app)
 
     return app
 
@@ -120,7 +127,7 @@ def _initialize_dependencies(
     request_classes: type[ReservationRequest] | dict[str, type[ReservationRequest]],
     sqlite_dir: DirectoryPath,
     app_config: AppConfig,
-    gcal_cred_path: FilePath,
+    gcal_secret_path: FilePath,
     gcal_token_path: FilePath | None,
 ) -> AppDependencies:
     resource_configs = load_resource_cfgs_from_yaml(resource_config_path, app_config)
@@ -129,7 +136,7 @@ def _initialize_dependencies(
     resource_bundles = init_dbs_and_bundles(
         resource_configs, normalized_requests, sqlite_dir, app_config.db_echo
     )
-    gcal = init_gcal(app_config.timezone, gcal_cred_path, gcal_token_path)
+    gcal = init_gcal(app_config.timezone, gcal_secret_path, gcal_token_path)
     calendar_service = GoogleCalendarService(gcal)
     return AppDependencies(resource_bundles, calendar_service)
 
@@ -168,10 +175,12 @@ def _configure_app_state(
     app: FastAPI,
     app_config: AppConfig,
     dependencies: AppDependencies,
+    site_dir: DirectoryPath,
 ) -> None:
     app.state.config = app_config
     app.state.resource_bundles = dependencies.resource_bundles
     app.state.calendar_service = dependencies.calendar_service
+    app.state.form_templates = Jinja2Templates(site_dir / "form-templates")
 
 
 def _register_resource_routes(
@@ -187,23 +196,6 @@ def _register_resource_routes(
         build_route(router, bundle, app_config)
         if multi_resource:
             app.include_router(router)
-
-
-def _register_home_route(app: FastAPI) -> None:
-    @app.get("/", response_class=HTMLResponse)
-    async def get_home_page(
-        request: Request,
-        all_configs: dict[str, ResourceConfig] = Depends(get_all_resource_cfgs),
-    ):
-        return TEMPLATES.TemplateResponse(
-            "home.html",
-            {
-                "request": request,
-                "site_title": app.state.config.title,
-                "description": app.state.config.description,
-                "resources": all_configs,
-            },
-        )
 
 
 def build_route(
