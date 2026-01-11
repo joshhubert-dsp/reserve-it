@@ -2,6 +2,7 @@ site_name: set this in app-config.yaml
 
 theme:
   name: material
+  icon: null
 
   palette:
     # System Preference

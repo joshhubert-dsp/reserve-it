@@ -2,7 +2,6 @@ import asyncio
 import re
 from dataclasses import dataclass
 from itertools import chain
-from pathlib import Path
 from time import time
 from typing import cast
 from urllib.parse import quote_plus, urlencode
@@ -11,7 +10,6 @@ from zoneinfo import ZoneInfo
 import yaml
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from devtools import pformat
 from fastapi import FastAPI, Request, status
 from fastapi.concurrency import asynccontextmanager
 from fastapi.exception_handlers import request_validation_exception_handler
@@ -21,7 +19,6 @@ from gcsa.google_calendar import GoogleCalendar
 from google.oauth2.credentials import Credentials
 from loguru import logger
 from pydantic import DirectoryPath, FilePath, ValidationError
-from rich import print
 from sqlalchemy import Engine as SqlEngine
 from sqlmodel import SQLModel, create_engine
 
@@ -73,16 +70,17 @@ def load_resource_cfgs_from_yaml(
         prefix = re.sub(LEADING_DASH_PATTERN, "", prefix)
 
         data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        data["file_prefix"] = prefix
+        data["file_prefix"] = prefix if len(config_file_paths) > 1 else "index"
         data["route_prefix"] = f"/{prefix}" if len(config_file_paths) > 1 else ""
         # update with global custom form fields if passed
         data["custom_form_fields"] = data.get("custom_form_fields", []) + (
             app_config.custom_form_fields
         )
 
-        # if relative, make it relative to config_dir
-        if "image" in data and not Path(data["image"]["path"]).is_absolute():
-            data["image"]["path"] = config_dir / data["image"]["path"]
+        # NOTE: images are only handled for the static build
+        # if "image" in data:
+        #     data["image"]["path"] = data["image"]["path"]
+        # data["image"]["path"] = IMAGES_DEST / data["image"]["path"]
 
         for field in DEFAULT_TO_APP_CONFIG_FIELDS:
             if field not in data:
@@ -94,7 +92,7 @@ def load_resource_cfgs_from_yaml(
             "you didn't create any resource config yaml files, or provided the wrong "
             "path for resource_config_path"
         )
-    print(f"{pformat(configs)}")
+    # print(f"{pformat(configs)}")
 
     return configs
 

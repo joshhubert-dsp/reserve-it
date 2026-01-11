@@ -1,9 +1,26 @@
+/* top level spacing */
+.ri-root {
+  display: flex;              /* flex */
+  /* flex: 1 1 0%;           */
+  flex-direction: column;     /* flex-col */
+  min-height: 100vh;          /* min-h-screen */
+  padding: 1rem 1.5rem;       /* py-4 (top/bot 1rem), px-6 (left/right 1.5rem) */
+}
+
+/* Tailwind's `space-y-4` */
+.ri-root > * + * {
+  margin-top: 1rem;              /* 4 → 1rem */
+}
+
+
+
+
 /* =========================
    Card
    ========================= */
 .ri-root .card {
   background-color: var(--md-default-bg-color);
-  padding: 1.5rem; /* p-6 */
+  padding: 1.5rem; 
   border-radius: 1rem; /* rounded-2xl */
   box-shadow: var(--md-shadow-z2);
 }
@@ -38,7 +55,7 @@
    Input / select / textarea
    ========================= */
 .ri-root .reservation-box {
-  margin-top: 0.25rem; /* mt-1 */
+  margin-top: 0.5rem; /* mt-1 */
   display: block;
   width: 100%;
   border-radius: 0.5rem; /* rounded-lg */
@@ -89,7 +106,6 @@
   width: 2rem;  /* w-8 */
   height: 2rem; /* h-8 */
   border-radius: 0.375rem;
-
   border: 1px solid #cbd5f5; /* slate-300 */
   background-color: #ffffff;
   color: #4f46e5; /* indigo-600 */
@@ -123,13 +139,6 @@
   color: #ffffff;
 }
 
-/* md:w-auto */
-@media (min-width: 768px) {
-  .ri-root .submit-button {
-    width: auto;
-  }
-}
-
 /* =========================
    Calendar container
    ========================= */
@@ -158,88 +167,81 @@
   gap: 0.25rem;
 }
 
-/* Tailwind's `md:` breakpoint = 768px */
-@media (min-width: 768px) {
-  .flex-col-start {
-    align-self: flex-end;
-  }
-}
-
 
 /* formatting stuff */
 
-.ri-title {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-    font-weight: 600;
-  }
+.ri-root .ri-title {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 600;
+}
 
-  .ri-subtitle {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    padding-bottom: 1rem;
-  }
+.ri-root .ri-subtitle {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  padding-bottom: 1rem;
+}
 
-  .reservation-form-layout {
-    max-width: 50%;
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
 
-  .form-button-row {
-    display: flex;
-    gap: 0.5rem;
-  }
+.ri-root .button-reserve {
+  background-color: #4f46e5;
+}
+.ri-root .button-reserve:hover {
+  background-color: #4338ca;
+}
+.ri-root .button-reserve:active {
+  background-color: #3730a3;
+}
 
-  .button-reserve {
-    background-color: #4f46e5;
-  }
-  .button-reserve:hover {
-    background-color: #4338ca;
-  }
-  .button-reserve:active {
-    background-color: #3730a3;
-  }
+.ri-root .button-cancel {
+  background-color: #dc2626;
+}
+.ri-root .button-cancel:hover {
+  background-color: #b91c1c;
+}
+.ri-root .button-cancel:active {
+  background-color: #991b1b;
+}
 
-  .button-cancel {
-    background-color: #dc2626;
-  }
-  .button-cancel:hover {
-    background-color: #b91c1c;
-  }
-  .button-cancel:active {
-    background-color: #991b1b;
-  }
+.ri-root .calendar-card {
+  flex: 1 1 0%;
+  overflow: hidden;
+  height: 80vh;
+}
 
-  .calendar-card {
-    flex: 1 1 0%;
-    overflow: hidden;
-    height: 80vh;
-  }
+.ri-root .contact-email-button {
+  display: inline;
+  background: none;
+  border: none;
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+.ri-root .contact-email-button:hover {
+  color: #1d4ed8;
+}
 
-  .contact-email-button {
-    display: inline;
-    background: none;
-    border: none;
-    color: #3b82f6;
-    text-decoration: underline;
-    cursor: pointer;
-    padding: 0;
-  }
-  .contact-email-button:hover {
-    color: #1d4ed8;
-  }
 
-  @media (min-width: 768px) {
-    .reservation-form-layout {
-      max-width: 50%;
-      flex-direction: row;
-      align-items: flex-end;
-    }
+.ri-root .form-button-row {
+  width: 95%;
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+  margin: 1rem auto 0
+}
 
-    .form-button-row {
-      align-self: flex-end;
-    }
-  }
+.ri-root .reservation-form-layout {
+  max-width: 95%;
+  margin-top: 0.5rem;
+  margin: 1rem auto 0;
+  display: grid;
+  gap: 1rem;
+  align-items: end;
+  justify-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}

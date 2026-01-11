@@ -62,8 +62,7 @@ class ImageFile(BaseModel):
     None, then the rendered image keeps the original image's aspect ratio.
 
     Args:
-        path (Path): Image absolute filepath. File must be nested directly under
-            `image_dir` path passed to `build_app()`.
+        path (Path): Image filepath. Must be relative to the resource-configs directory.
         caption (str, optional): Caption to display for the image. Defaults to "".
         pixel_width (int | None , optional): Desired pixel width for the displayed image.
             Defaults to None. See above for behavior details.

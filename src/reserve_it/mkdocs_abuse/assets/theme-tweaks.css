@@ -1,0 +1,22 @@
+/* TODO make it work */
+@media (min-width: 1200px) {
+    :root {
+        --md-sidebar-width: 4rem !important;
+        /* outline: 5px solid red; */
+    }
+}
+
+.md-main__inner {
+  grid-template-columns: auto 1fr !important;
+}
+
+.md-container {
+  max-width: 100% !important;
+}
+
+/* hide default MkDocs page headline spacing */
+.md-content__inner > h1:first-of-type {
+  display: none;
+  margin: 0;
+  margin-bottom: 0;
+}

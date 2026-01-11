@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta
 
 from pydantic import BaseModel, DirectoryPath, ValidationError
 
-from reserve_it import MKDOCS_ROOT
+from reserve_it import ASSETS_DEST, ASSETS_SRC, IMAGES_DEST
 from reserve_it.app.utils import load_resource_cfgs_from_yaml
 from reserve_it.models.app_config import AppConfig
 from reserve_it.models.field_types import AM_PM_TIME_FORMAT, YamlPath
@@ -50,11 +50,6 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File, Files
 from mkdocs.structure.pages import Page
 
-# -----------------------------
-# Data model for resource YAML
-# -----------------------------
-
-
 # def slugify(s: str) -> str:
 #     """
 #     Basic slugify:
@@ -71,13 +66,11 @@ from mkdocs.structure.pages import Page
 #     return s.strip("-") or "resource"
 
 
-# Custom Assets: ship JS/CSS from package into site/ and auto-include them.
-ASSETS_DIR = Path("assets/reserve-it")
-ASSETS = {
-    "js_local": [],
-    "js_remote": ["https://unpkg.com/htmx.org@1.9.12"],
-    "css": ["reserve-it.css"],
-}
+CSS_ASSETS = [css.name for css in ASSETS_SRC.glob("*.css")]
+JS_ASSETS = [js.name for js in ASSETS_SRC.glob("*.js")]
+
+
+REMOTE_JS = ["https://unpkg.com/htmx.org@1.9.12"]
 # Template names inside this package's templates/ directory.
 TEMPLATES = {
     "resource_page": "form_page.md.j2",
@@ -97,8 +90,10 @@ class ReserveItPluginConfig(Config):
     MkDocs reads these from mkdocs.yml and validates/coerces types.
     """
 
-    app_config = config_options.Type(str, default="app-config.yaml")
-    resource_config_dir = config_options.Type(str, default="resource-configs")
+    app_config = config_options.Type(str, default=str(Path.cwd() / "app-config.yaml"))
+    resource_config_dir = config_options.Type(
+        str, default=str(Path.cwd() / "resource-configs")
+    )
     assets_enabled = config_options.Type(bool, default=True)
     # Base path that your frontend calls for your FastAPI endpoints.
     # api_base = config_options.Type(str, default="/api")
@@ -189,26 +184,14 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         # config["use_directory_urls"] = True
 
         self._extract_templates(config)
-        self._add_markdown_exts(config)
-        # config["markdown_extensions"] += MARKDOWN_EXTENSIONS
+        # self._add_markdown_exts(config)
+        config["extra_javascript"] += REMOTE_JS
 
         if self.cfg.assets_enabled:
             # MkDocs will emit <script src="..."> for each entry in extra_javascript.
             # It will emit <link rel="stylesheet" href="..."> for each entry in extra_css.
-            extra_js = config.get("extra_javascript", [])
-            extra_css = config.get("extra_css", [])
-
-            for js in ASSETS.get("js_local", []):
-                extra_js.append(str(ASSETS_DIR / js))
-
-            for js in ASSETS.get("js_remote", []):
-                extra_js.append(js)
-
-            for css in ASSETS.get("css", []):
-                extra_css.append(str(ASSETS_DIR / css))
-
-            config["extra_javascript"] = extra_js
-            config["extra_css"] = extra_css
+            config["extra_javascript"] += [str(ASSETS_DEST / js) for js in JS_ASSETS]
+            config["extra_css"] += [str(ASSETS_DEST / css) for css in CSS_ASSETS]
 
         return config
 
@@ -275,40 +258,6 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         emoji_cfg["emoji_index"] = twemoji
         emoji_cfg["emoji_generator"] = to_svg
 
-    # def _add_markdown_exts(self, config):
-    #     # MkDocs stores extension names in a list.
-    #     mdx = config.get("markdown_extensions") or []
-    #     existing = set(mdx)
-
-    #     for ext in self.config["markdown_extensions"]:
-    #         if ext not in existing:
-    #             mdx.append(ext)
-    #             existing.add(ext)
-
-    #     config["markdown_extensions"] = mdx
-
-    #     # Extension configs live in a dict keyed by extension name.
-    #     # MkDocs historically used `markdown_extensions_configs`, but in many
-    #     # setups you'll see `mdx_configs`. We'll support both.
-    #     mdx_cfg_key = (
-    #         "mdx_configs" if "mdx_configs" in config else "markdown_extensions_configs"
-    #     )
-    #     mdx_cfg = dict(config.get(mdx_cfg_key) or {})
-
-    #     for ext, ext_cfg in (self.config["markdown_extensions_config"] or {}).items():
-    #         if ext_cfg is None:
-    #             continue
-    #         if not isinstance(ext_cfg, Mapping):
-    #             raise TypeError(
-    #                 f"markdown_extensions_config[{ext!r}] must be a mapping, got {type(ext_cfg)}"
-    #             )
-    #         # Merge (plugin config wins only where it sets keys)
-    #         merged = dict(mdx_cfg.get(ext) or {})
-    #         merged.update(ext_cfg)
-    #         mdx_cfg[ext] = merged
-
-    #     config[mdx_cfg_key] = mdx_cfg
-
     # -----------------------------
     # Hook: on_files
     # -----------------------------
@@ -326,7 +275,7 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         for cfg in self.resource_configs.values():
             # within the virtual docs tree
-            src_path = f"{cfg.name}.md"
+            src_path = f"{cfg.file_prefix}.md"
 
             # Generate Markdown content now (via Jinja template).
             self._generated_markdown[src_path] = self._render_resource_page_markdown(
@@ -344,23 +293,6 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
                     use_directory_urls=True,
                 )
             )
-
-        # 3) Optional index page: <base>/index.md listing all resources.
-        # if bool(self.config["include_index"]):
-        #     index_src_path = f"{base}/index.md"
-        #     self._generated_markdown[index_src_path] = self._render_index_page_markdown(
-        #         resources=self.resource_configs,
-        #         route_prefix=route_prefix,
-        #         base_path=base,
-        #     )
-        #     files.append(
-        #         File(
-        #             path=index_src_path,
-        #             src_dir=str(Path(config["docs_dir"])),
-        #             dest_dir=config["site_dir"],
-        #             use_directory_urls=config.get("use_directory_urls", True),
-        #         )
-        #     )
 
         return files
 
@@ -391,23 +323,31 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         if not self.cfg.assets_enabled:
             return
 
-        js_files = ASSETS.get("js_local", [])
-        css_files = ASSETS.get("css", [])
-
         # Built site directory (where MkDocs outputs HTML/CSS/JS).
-        target_dir = config["site_dir"] / ASSETS_DIR
-        target_dir.mkdir(parents=True, exist_ok=True)
-
-        # Our packaged static assets live at:
-        static_dir = MKDOCS_ROOT / "assets"
-
-        # Copy whatever files are declared in config.
-        for name in js_files + css_files:
-            src = static_dir / name
+        dest_dir = config["site_dir"] / ASSETS_DEST
+        dest_dir.mkdir(parents=True)
+        for name in JS_ASSETS + CSS_ASSETS:
+            src = ASSETS_SRC / name
             if not src.exists():
-                # Fail loudly: missing asset in package = broken install.
                 raise FileNotFoundError(f"reserve-it asset missing from package: {src}")
-            shutil.copy2(src, target_dir / name)
+            shutil.copy2(src, dest_dir / name)
+
+        # copy over images, if provided
+
+        image_rel_paths = [
+            r.image.path for r in self.resource_configs.values() if r.image
+        ]
+        if image_rel_paths:
+            image_dest_dir = config["site_dir"] / IMAGES_DEST
+            image_dest_dir.mkdir(parents=True)
+            for ipath in image_rel_paths:
+                # if Path(ipath).is_absolute():
+                #     raise ValueError(
+                #         f"'{ipath}' must be relative to the resource-configs directory."
+                #     )
+
+                src = self.cfg.resource_config_dir / ipath
+                shutil.copy2(src, image_dest_dir / ipath)
 
     def on_shutdown(self):
         # Clean up temp directory
@@ -442,6 +382,9 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         # Everything you pass here becomes available in the .md.j2 template.
         return tpl.render(
             resource=resource,
+            image_path=(IMAGES_DEST / resource.image.path).as_posix()
+            if resource.image
+            else None,
             custom_form_fields=[
                 model.model_dump(mode="json") for model in resource.custom_form_fields
             ],

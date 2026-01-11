@@ -1,23 +1,23 @@
 ---
 template: ri_form.html
+title: {{ resource.name | tojson }}
 name: {{ resource.name | tojson}}
+emoji: {{ resource.emoji }} 
 description: {{ resource.description | tojson }}
 minutes_before_reminder: {{ resource.minutes_before_reminder | tojson }}
 allow_end_next_day: {{ resource.allow_end_next_day | tojson }}
 allow_shareable: {{ resource.allow_shareable | tojson }}
 route_prefix: {{ resource.route_prefix | tojson }}
 contact_email: {{ resource.contact_email | tojson }}
+image: {{ (resource.image.model_dump(mode="json") if resource.image else None) | tojson }}
+{% if resource.image %}
+image_path: {{ image_path | tojson }}
+image_name: {{ resource.image.path.name | tojson }}
+{% endif %}
 time_slots: {{ time_slots }}
 custom_form_fields: {{ custom_form_fields | tojson }}
 hide:
-  - title
+  - toc
 ---
 
-<!-- emoji: {{ resource.emoji | tojson }} 
 
-image: "{{ (resource.image.model_dump(mode="json") if resource.image else None) | tojson }}"
-{% if resource.image %}
-image_path: "{{ resource.image.path }}"
-image_name: "{{ resource.image.path.name }}"
-{% endif %}
--->

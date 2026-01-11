@@ -62,8 +62,8 @@ All it takes to build a resource reservation system website for your organizatio
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 3.  Create a folder of resource reservation config yaml files, one for each set of resources, like this:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=example/resource-config-examples/2-courts.yaml) -->
-    <!-- The below code snippet is automatically added from resource-config-examples/2-courts.yaml -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=example/resource-configs/2-courts.yaml) -->
+    <!-- The below code snippet is automatically added from resource-configs/2-courts.yaml -->
 
     ```yaml
     # resource page title
@@ -110,7 +110,7 @@ All it takes to build a resource reservation system website for your organizatio
     # Optionally, specify a path to a descriptive image for this resource, displayed on the
     # form webpage.
     image:
-        path: /Users/me/reserve-it/resource-config-examples/courts.jpg,
+        path: /Users/me/reserve-it/resource-configs/courts.jpg,
         caption: court map
         pixel_width: 800
     ```
@@ -150,7 +150,7 @@ All it takes to build a resource reservation system website for your organizatio
     if __name__ == "__main__":
         app = build_app(
             app_config=PROJECT_ROOT / "app-config-example.yaml",
-            resource_config_path=PROJECT_ROOT / "resource-config-examples",
+            resource_config_path=PROJECT_ROOT / "resource-configs",
             sqlite_dir=PROJECT_ROOT / "sqlite_dbs",
             gcal_cred_path=PROJECT_ROOT / "client_secret.json",
             gcal_token_path=PROJECT_ROOT / "auth_token.json",
