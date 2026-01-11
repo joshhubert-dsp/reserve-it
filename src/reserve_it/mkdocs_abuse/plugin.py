@@ -270,6 +270,8 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         These files do NOT have to exist on disk if we also implement on_page_read_source
         to supply their contents as strings.
         """
+        # if only one page, hide the nav bar
+        single_page = (len(files) + len(self.resource_configs)) == 1
 
         # 2) For each resource, add a new virtual Markdown page.
 
@@ -279,7 +281,7 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
             # Generate Markdown content now (via Jinja template).
             self._generated_markdown[src_path] = self._render_resource_page_markdown(
-                cfg
+                cfg, single_page
             )
 
             # Add file to MkDocs "known files". MkDocs uses docs_dir for source root,
@@ -358,12 +360,12 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
     # -----------------------------
     # Jinja rendering helpers
     # -----------------------------
-    def _render_resource_page_markdown(self, resource: ResourceConfig) -> str:
+    def _render_resource_page_markdown(
+        self, resource: ResourceConfig, single_page: bool
+    ) -> str:
         """
-        Render resource page Markdown using a Jinja template shipped in this package.
-
-        This is your "custom Jinja step", but we keep it producing Markdown, not HTML.
-        That means MkDocs + Material still do all the theming + search + nav work.
+        Custom Jinja step renders resource page Markdown using a template shipped in this package.
+        Makes use of yaml frontmatter in the markdown page.
         """
         tpl_name = TEMPLATES["resource_page"]
         tpl = self._jinja.get_template(tpl_name)
@@ -381,6 +383,7 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         # Everything you pass here becomes available in the .md.j2 template.
         return tpl.render(
+            single_page=single_page,
             resource=resource,
             image_path=(IMAGES_DEST / resource.image.path).as_posix()
             if resource.image

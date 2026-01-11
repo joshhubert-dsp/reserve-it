@@ -18,6 +18,9 @@ time_slots: {{ time_slots }}
 custom_form_fields: {{ custom_form_fields | tojson }}
 hide:
   - toc
+{% if single_page %}
+  - navigation
+{% endif %}
 ---
 
 
