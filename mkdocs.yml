@@ -47,7 +47,6 @@ theme:
     - navigation.expand
     - navigation.path
     - navigation.tracking
-    # intentionally omit repo.stats
 
 plugins:
   - search

@@ -60,13 +60,13 @@ class GoogleCalendarService(CalendarService):
         """Return calendars without conflicts for the requested time slot."""
 
         free_busy = self.client.get_free_busy(
-            resource_ids=list(config.calendar_ids),
+            resource_ids=list(config._calendar_ids),
             time_min=reservation.start_dt,
             time_max=reservation.end_dt,
             timezone=self.client.timezone.key,
         )
         print(pformat(free_busy.calendars))
-        free_candidates = deepcopy(config.calendar_ids)
+        free_candidates = deepcopy(config._calendar_ids)
 
         for cal_id in free_busy.calendars.keys():
             free_candidates.pop(cal_id, None)
@@ -91,7 +91,7 @@ class GoogleCalendarService(CalendarService):
         """
         event_n_cals: list[EventCalendarId] = []
 
-        for cal_id in config.calendar_ids:
+        for cal_id in config._calendar_ids:
             found_events = list(
                 self.client.get_events(
                     time_min=request.start_dt,
@@ -121,7 +121,7 @@ class GoogleCalendarService(CalendarService):
             EventCalendarId | None: object holding event found and its calendar_id,
                 or None if no corresponding event found.
         """
-        for cal_id in config.calendar_ids:
+        for cal_id in config._calendar_ids:
             found_events = self.client.get_events(
                 time_min=request.start_dt,
                 time_max=request.end_dt,

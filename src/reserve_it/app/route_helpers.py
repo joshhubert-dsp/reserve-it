@@ -107,7 +107,7 @@ async def submit_reservation(
             "A new one can be made once the current one has passed or been cancelled.",
         )
 
-    free_candidates = deepcopy(config.calendar_ids)
+    free_candidates = deepcopy(config._calendar_ids)
 
     async with resource_lock:
         # get existing gcal events, check for sharing

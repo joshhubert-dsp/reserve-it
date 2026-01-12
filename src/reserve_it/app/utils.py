@@ -91,7 +91,7 @@ def load_resource_cfgs_from_yaml(
         for field in DEFAULT_TO_APP_CONFIG_FIELDS:
             if field not in data:
                 data[field] = getattr(app_config, field)
-        configs[prefix] = ResourceConfig.model_validate_cleanly(data, extra="ignore")
+        configs[prefix] = ResourceConfig._model_validate_cleanly(data, extra="ignore")
 
     if not configs:
         raise ValueError(

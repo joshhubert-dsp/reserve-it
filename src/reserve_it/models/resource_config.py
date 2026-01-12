@@ -1,12 +1,9 @@
 from datetime import time
 from functools import cached_property
-from pathlib import Path
 from typing import Self
 
 from loguru import logger
 from pydantic import (
-    BaseModel,
-    ConfigDict,
     EmailStr,
     Field,
     PositiveInt,
@@ -17,63 +14,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from reserve_it.models.field_types import (
     AmPmTime,
-    HexColor,
-    HtmlFormInputType,
+    CalendarInfo,
+    CustomFormField,
+    ImageFile,
 )
 
 MAX_CALENDARS_SHOWN = 4
 """If a resource has more than this many calendars, the combined reservation Google calendar
 view won't be shown on the form webpage. It'd be too hectic and not add value for the user."""
-
-
-class CalendarInfo(BaseModel):
-    """color can be omitted from the yaml dict, it will not be used if a resource has more than 4 calendars
-    (since the calendars won't be shown)"""
-
-    id: str
-    color: HexColor | None = None
-
-
-class CustomFormField(BaseModel):
-    """
-    Custom html form input fields can be defined for a resource, either in your python
-    source (handy for global custom fields), or in its config yaml file (good for
-    individual custom fields).
-    You can directly specify any legal html form attribute as a key/value pair.
-    Just make sure to also subclass the ReservationRequest model for proper validation
-    of custom fields.
-    NOTE: the name value is used by both an input's name and id attribute (for linking
-    the input to the label).
-    """
-
-    type: HtmlFormInputType
-    name: str
-    label: str
-    required: bool = True
-    title: str = ""
-
-    model_config = ConfigDict(extra="allow")
-
-
-class ImageFile(BaseModel):
-    """Bundle of info for an image to display on a reservation webpage. Uses the image's
-    actual dimensions if not specified. If both pixel_width and pixel_height are None,
-    then the rendered image uses the original image's actual dimensions. If only one of them is
-    None, then the rendered image keeps the original image's aspect ratio.
-
-    Args:
-        path (Path): Image filepath. Must be relative to the resource-configs directory.
-        caption (str, optional): Caption to display for the image. Defaults to "".
-        pixel_width (int | None , optional): Desired pixel width for the displayed image.
-            Defaults to None. See above for behavior details.
-        pixel_height (int | None , optional): Desired pixel height for the displayed image.
-            Defaults to None. See above for behavior details.
-    """
-
-    path: Path
-    caption: str = ""
-    pixel_width: int | None = None
-    pixel_height: int | None = None
 
 
 DEFAULT_TO_APP_CONFIG_FIELDS = (
@@ -187,7 +135,7 @@ class ResourceConfig(BaseSettings):
         return self
 
     @cached_property
-    def calendar_ids(self) -> dict[str, str]:
+    def _calendar_ids(self) -> dict[str, str]:
         """dict[cal_id, event_label], this ends up being useful."""
         return {cal.id: label for label, cal in self.calendars.items()}
 
@@ -196,7 +144,7 @@ class ResourceConfig(BaseSettings):
         return len(self.calendars) <= MAX_CALENDARS_SHOWN and self.calendar_shown
 
     @classmethod
-    def model_validate_cleanly(cls, obj: dict, *, context=None, **kwargs):
+    def _model_validate_cleanly(cls, obj: dict, *, context=None, **kwargs):
         """model_validate overload that adds helpful error log for determining which
         resource config is bad in the case of many resources
         """

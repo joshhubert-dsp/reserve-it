@@ -6,8 +6,7 @@ from loguru import logger
 from pydantic import EmailStr, Field, PositiveInt, ValidationError
 from pydantic_settings import BaseSettings
 
-from reserve_it.models.field_types import YamlPath
-from reserve_it.models.resource_config import CustomFormField
+from reserve_it.models.field_types import CustomFormField, YamlPath
 
 
 class AppConfig(BaseSettings):
@@ -64,11 +63,17 @@ class AppConfig(BaseSettings):
 
     @classmethod
     def from_yaml(cls, path: YamlPath) -> Self:
+        """helper method to load the config from the yaml path passed.
+
+        Args:
+            path (YamlPath): pathlib.Path object for a valid yaml file defining the
+                config with the same args listed.
+        """
         data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        return cls.model_validate_cleanly(data)
+        return cls._model_validate_cleanly(data)
 
     @classmethod
-    def model_validate_cleanly(cls, obj: dict, *, context=None, **kwargs):
+    def _model_validate_cleanly(cls, obj: dict, *, context=None, **kwargs):
         """model_validate overload that adds clean error log"""
         try:
             return super().model_validate(obj, context=context, **kwargs)

@@ -8,7 +8,14 @@ PROJECT_ROOT = Path(__file__).parents[1]
 README_PATH = PROJECT_ROOT / "README.md"
 SRC_ROOT = PROJECT_ROOT / "src"
 
-INCLUDED_PY_FILES = [SRC_ROOT / "reserve_it" / "__init__.py"]
+INCLUDED_PY_FILES = [
+    SRC_ROOT / "reserve_it" / "app" / "build_app.py",
+    SRC_ROOT / "reserve_it" / "models" / "app_config.py",
+    SRC_ROOT / "reserve_it" / "models" / "resource_config.py",
+    SRC_ROOT / "reserve_it" / "models" / "field_types.py",
+    SRC_ROOT / "reserve_it" / "models" / "reservation_request.py",
+    # SRC_ROOT / "reserve_it" / "__init__.py",
+]
 
 
 def gen_home_page(readme_path: Path):
