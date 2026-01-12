@@ -42,7 +42,9 @@ def gen_code_refs_and_nav(src_root: Path):
         elif parts[-1] == "__main__":
             continue
 
-        nav[parts] = doc_path.as_posix()
+        # flatten nav to just show included files, not full hierarchy
+        nav[parts[-1]] = doc_path.as_posix()
+        # nav[parts] = doc_path.as_posix()
 
         with mkdocs_gen_files.open(full_doc_path, "w") as fd:
             ident = ".".join(parts)

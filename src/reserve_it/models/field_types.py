@@ -1,3 +1,7 @@
+"""
+Special types passed as arguments to `ResourceConfig`.
+"""
+
 from datetime import datetime, time
 from pathlib import Path
 from typing import Annotated, Any, Literal

@@ -11,7 +11,7 @@ from reserve_it.models.field_types import CustomFormField, YamlPath
 
 class AppConfig(BaseSettings):
     """App configuration model passed to `build_app()`, either loaded from
-    app-config.yaml or constructed at runtime.
+    `app-config.yaml` or constructed at runtime.
 
     Args:
         title (str): Title of your app, displayed on the home page if there are multiple
