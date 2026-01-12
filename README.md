@@ -6,6 +6,8 @@ A dead-simple reservation system web app framework, built on Google Calendar and
 Mkdocs-Material, implemented as a Mkdocs plugin. Designed with the goal of making
 communal sharing and coordination effortless and ubiquitous.
 
+Docs [here](joshhubert-dsp.github.io/reserve-it/).
+
 `reserve-it` is a lightweight framework that enables rapidly building a web app for
 shared community amenity/resource reservations. It provides a customizable validation
 logic layer around creating events in a restricted but publicly viewable Google
