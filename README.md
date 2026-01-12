@@ -147,9 +147,18 @@ All it takes to build a resource reservation system website for your organizatio
     ```
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
-8.  Modify the included Mkdocs config file `mkdocs.yml` to suit your aesthetic needs.
+8.  Modify the default Mkdocs config file `mkdocs.yml` to suit your aesthetic needs.
     Also if you want additional static pages added to your site, you can add them as
-    markdown files under `docs` in standard Mkdocs fashion.
+    markdown files under `docs` in standard Mkdocs fashion. `mkdocs.yml` must include
+    the following:
+    ```yaml
+    theme:
+      name: material
+
+    plugins:
+      - reserve-it
+    ```
+
 
 9.  Build the static portion of the site with `mkdocs build`. It will build to the
     directory `site` by (Mkdocs) default.
