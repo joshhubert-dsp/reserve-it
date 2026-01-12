@@ -90,7 +90,8 @@ precedence.
 
 
 class ResourceConfig(BaseSettings):
-    """Base reservation configuration model. Works as is, or subclass to add extras.
+    """Base reservation configuration model, loaded from the yaml files you add to your
+    `resource-configs` directory.
     Encapsulates as many individual calendars as you put in the calendars dict,
     and together they constitute the total reservation capacity for a resource.
 

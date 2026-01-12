@@ -8,6 +8,8 @@ PROJECT_ROOT = Path(__file__).parents[1]
 README_PATH = PROJECT_ROOT / "README.md"
 SRC_ROOT = PROJECT_ROOT / "src"
 
+INCLUDED_PY_FILES = [SRC_ROOT / "reserve_it" / "__init__.py"]
+
 
 def gen_home_page(readme_path: Path):
     """generates homepage copied from README.md specified"""
@@ -20,7 +22,8 @@ def gen_code_refs_and_nav(src_root: Path):
     to include them"""
     nav = mkdocs_gen_files.Nav()
 
-    for path in sorted(src_root.rglob("*.py")):
+    for path in INCLUDED_PY_FILES:
+        # for path in sorted(src_root.rglob("*.py")):
         module_path = path.relative_to(src_root).with_suffix("")
         doc_path = path.relative_to(src_root).with_suffix(".md")
         full_doc_path = Path("reference", doc_path)
