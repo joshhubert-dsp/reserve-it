@@ -131,7 +131,7 @@ All it takes to build a resource reservation system website for your organizatio
     allow_shareable: true
     
     # Optionally, add additional custom form fields to this resource reservation webpage, on
-    # top of the ones defined in app-config-example.yaml
+    # top of the ones defined in app-config.yaml
     custom_form_fields:
       - type: number
         name: ntrp
@@ -215,7 +215,8 @@ All it takes to build a resource reservation system website for your organizatio
 ## Features
 
 -   You have the rich aesthetic customization capabilities of the Mkdocs ecosystem and
-    Mkdocs-Material theme at your fingertips.
+    Mkdocs-Material theme at your fingertips. The default config includes a light/dark
+    mode toggle that respects user system settings by default.
 -   Users don't need to make accounts or log in, an email address is the only required
     form of identification.
 -   Users receive email confirmation for their reservation in the form of a Google
@@ -236,17 +237,13 @@ All it takes to build a resource reservation system website for your organizatio
     reservation webpage.
 -   Each reservation webpage displays a form input, and optionally an embedded calendar
     view and an arbitrary descriptive image you provide.
--   Yaml files are stored in the directory passed to `resource_config_path`. When more
-    than one yaml file is present, a home page is automatically generated for navigating
-    between reservation webpages, and the filenames are used for the endpoint paths.
 -   For resources that can be shared between multiple users at once (like say, a sauna),
     users can select that they are willing to share with others. If they are, subsequent
     users who are willing to share can reserve overlapping times, while users who are
-    not willing to share are barred from these times like normal.
+    not willing to share are barred from these times.
 -   You may define custom form input fields and validation logic either globally or per
-    reservation page via the yaml file. This data will be available for validation only,
+    reservation page via the yaml files. This data will be available for validation only,
     but not stored to the database.
--   Webpage light/dark mode toggle that respects user system settings by default.
 
 ## TODO
 
