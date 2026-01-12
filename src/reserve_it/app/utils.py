@@ -127,6 +127,7 @@ def init_gcal(
 def create_db_engine(
     sqlite_db_path: DirectoryPath, file_prefix: str, db_echo: bool = False
 ) -> SqlEngine:
+    sqlite_db_path.mkdir(parents=True, exist_ok=True)
     db_filepath = sqlite_db_path / f"{file_prefix}.sqlite3"
     sqlite_url = f"sqlite:///{db_filepath}"
     engine = create_engine(sqlite_url, echo=db_echo)

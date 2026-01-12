@@ -24,12 +24,15 @@ PROJECT_ROOT = Path(__file__).parent
 GCAL_CREDS_DIR = PROJECT_ROOT / ".gcal-credentials"
 
 if __name__ == "__main__":
+    # NOTE: if PROJECT ROOT is your current working dir, these commented out Path args
+    # are the defaults
     app = build_app(
-        app_config=PROJECT_ROOT / "app-config.yaml",
-        resource_config_path=PROJECT_ROOT / "resource-configs",
-        sqlite_dir=PROJECT_ROOT / "sqlite-dbs",
-        gcal_secret_path=GCAL_CREDS_DIR / "client-secret.json",
-        gcal_token_path=GCAL_CREDS_DIR / "auth-token.json",
+        # app_config=PROJECT_ROOT / "app-config.yaml",
+        # resource_config_path=PROJECT_ROOT / "resource-configs",
+        # sqlite_dir=PROJECT_ROOT / "sqlite-dbs",
+        # gcal_secret_path=GCAL_CREDS_DIR / "client-secret.json",
+        # gcal_token_path=GCAL_CREDS_DIR / "auth-token.json",
+        # site_dir=PROJECT_ROOT / "site",
         request_classes=PasswordProtectedRequest,
     )
     uvicorn.run(app, host="127.0.0.1", port=8000)

@@ -57,20 +57,23 @@ def build_app(
 
     Args:
         app_config (AppConfig | YamlPath): Either an AppConfig object, or a path to a
-            yaml file to instantiate one from.
+            yaml file to instantiate one from. Defaults to [CWD]/app-config.yaml.
         resource_config_path (DirectoryPath): Path to a folder full of resource config
-            yaml files.
+            yaml files. Defaults to [CWD]/resource-configs/.
         sqlite_dir (DirectoryPath): Path to a folder where sqlite databases will be
             generated and stored. Each resource generates a database, and the reminder
             job scheduler generates an additional one that serves all resources.
+            Defaults to [CWD]/sqlite-dbs/.
         gcal_secret_path (FilePath): Path to the json file holding static OAuth client ID
             desktop app credentials you generated and downloaded from
-            `https://console.cloud.google.com/apis/credentials`, `client-secret.json` or
-            similarly named.
+            `https://console.cloud.google.com/apis/credentials`. Defaults to
+            [CWD]/.gcal-credentials/client-secret.json.
         gcal_token_path (FilePath | None, optional): If desired, path to a json file to
             save the refresh token and temporary auth token to on first authenticating
             your credentials, to reduce token churn. If passed, the token is automatically
-            refreshed if expired. Defaults to None, in which case no tokens are saved.
+            refreshed if expired. Defaults to [CWD]/.gcal-credentials/auth-token.json.
+        site_dir (DirectoryPath): Path of your desired mkdocs static site build directory.
+            Defaults to [CWD]/site/.
         request_classes (type[ReservationRequest] | dict[str, type[ReservationRequest]], optional):
             Either a single global ReservationRequest model subclass to use for form input
             validation for all resources, one a dict of one subclass per resource, with

@@ -1,5 +1,3 @@
-"""Console script for ppp_reservations."""
-
 import contextlib
 from pathlib import Path
 
@@ -14,9 +12,10 @@ EXAMPLE_ROOT = Path(__file__).parent / "example"
 
 
 @app.command()
-def serve_example(port: int = 8080):
-    """builds and serves a static example site for viewing purposes (no actual
-    functionality beyond page navigation)."""
+def serve_example(port: int = 8000):
+    """Builds and serves a static example site template for viewing purposes. No actual
+    functionality beyond page navigation and no embedded calendar view, and a bit of
+    jinja template syntax strewn about, but gives you a good idea of the aesthetic anyway."""
     with contextlib.chdir(EXAMPLE_ROOT):
         serve(
             config_file="mkdocs.yml",
@@ -28,7 +27,7 @@ def serve_example(port: int = 8080):
 @app.command()
 def init(project_root: Path | None = None):
     """Initializes a new reserve-it project with the necessary directories and files,
-    copied directly from examples dir."""
+    copied directly from example dir."""
     if not project_root:
         project_root = Path.cwd()
 
