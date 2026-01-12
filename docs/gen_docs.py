@@ -4,8 +4,8 @@ from pathlib import Path
 
 import mkdocs_gen_files
 
-from reserve_it import PROJECT_ROOT
-
+# from reserve_it import PROJECT_ROOT
+PROJECT_ROOT = Path(__file__).parents[1]
 README_PATH = PROJECT_ROOT / "README.md"
 SRC_ROOT = PROJECT_ROOT / "src"
 
