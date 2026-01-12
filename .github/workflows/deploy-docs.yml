@@ -10,23 +10,30 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.1
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
       # - name: Configure Git Credentials
       # run: |
       #   git config user.name github-actions[bot]
       #   git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v6.1.0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6.1.0
         with:
           python-version: "3.13"
-      # rotate cache weekly
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+
+      - name: Rotate cache weekly
+        run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
       - uses: actions/cache@v5.0.1
         with:
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache
           restore-keys: mkdocs-material-
+
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install . --group docs
-      - run: mkdocs gh-deploy --force
+
+      - name: Unleash the Docs!
+        run: mkdocs gh-deploy --force

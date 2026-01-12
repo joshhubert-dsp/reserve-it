@@ -17,7 +17,7 @@ App users don't need to make an account, the base configuration only requires an
 address. You can choose whether or not to implement a shared password or other
 authentication in the web form, see below.
 
-![form page](form-page.png)
+![form page](./form-page.png)
 
 ## Basic Setup
 
@@ -38,9 +38,10 @@ All it takes to build a resource reservation system website for your organizatio
     app uses to serve it), but you'll get a decent idea anyway.
 
 5.  If you like what you see, run `reserve-it init` to copy the necessary structure
-    directly from the package's `example` directory into your project directory. If you
-    have a `.gitignore` file already in your directory, the recommended default ignores
-    will be appended. You'll end up with following structure:
+    directly from the package's `example` directory into your current working 
+    directory. If you have a `.gitignore` file already in your directory, the
+    recommended default ignores will be appended. You'll end up with following
+    structure:
 
     ```
     .
@@ -56,12 +57,12 @@ All it takes to build a resource reservation system website for your organizatio
     ```
 
 6.  Modify the global config file `app-config.yaml` to suit your needs. Example:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=example/app-config.yaml) -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=src/reserve_it/example/app-config.yaml) -->
 
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 7.  Add your resource reservation config yaml files under `resource-configs`, one for each set of resources, like this:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=example/resource-configs/2-courts.yaml) -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=src/reserve_it/example/resource-configs/2-courts.yaml) -->
 
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
@@ -74,7 +75,7 @@ All it takes to build a resource reservation system website for your organizatio
 
 10. Write a simple python script to define custom form input validation, and then build
     the dynamic web app from the Mkdocs build:
-    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=example/server_example.py) -->
+    <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=src/reserve_it/example/server_example.py) -->
 
     <!-- MARKDOWN-AUTO-DOCS:END -->
 

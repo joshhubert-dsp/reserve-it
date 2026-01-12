@@ -4,18 +4,20 @@ from pathlib import Path
 
 import mkdocs_gen_files
 
-PROJECT_ROOT = Path(__file__).parents[1]
+from reserve_it import PROJECT_ROOT
+
 README_PATH = PROJECT_ROOT / "README.md"
 SRC_ROOT = PROJECT_ROOT / "src"
 
-INCLUDED_PY_FILES = [
-    SRC_ROOT / "reserve_it" / "app" / "build_app.py",
-    SRC_ROOT / "reserve_it" / "models" / "app_config.py",
-    SRC_ROOT / "reserve_it" / "models" / "resource_config.py",
-    SRC_ROOT / "reserve_it" / "models" / "field_types.py",
-    SRC_ROOT / "reserve_it" / "models" / "reservation_request.py",
-    # SRC_ROOT / "reserve_it" / "__init__.py",
+# specific objects to include pages for in the code reference
+INCLUDED_OBJECTS = [
+    "reserve_it.app.build_app.build_app",
+    "reserve_it.models.app_config.AppConfig",
+    "reserve_it.models.resource_config.ResourceConfig",
+    "reserve_it.models.reservation_request.ReservationRequest",
 ]
+# whole files to include pages for in the code reference
+INCLUDED_PY_FILES = [SRC_ROOT / "reserve_it" / "models" / "field_types.py"]
 
 
 def gen_home_page(readme_path: Path):
@@ -29,10 +31,19 @@ def gen_code_refs_and_nav(src_root: Path):
     to include them"""
     nav = mkdocs_gen_files.Nav()
 
+    for obj in INCLUDED_OBJECTS:
+        name = obj.split(".")[-1]
+        doc_path = f"{name}.md"
+        full_doc_path = Path("reference", doc_path)
+        nav[name] = doc_path
+
+        with mkdocs_gen_files.open(full_doc_path, "w") as fd:
+            fd.write(f"::: {obj}")
+
     for path in INCLUDED_PY_FILES:
-        # for path in sorted(src_root.rglob("*.py")):
         module_path = path.relative_to(src_root).with_suffix("")
-        doc_path = path.relative_to(src_root).with_suffix(".md")
+        # flatten nav to just show files, not full hierarchy
+        doc_path = Path(f"{path.stem}.md")
         full_doc_path = Path("reference", doc_path)
 
         parts = tuple(module_path.parts)
@@ -42,15 +53,11 @@ def gen_code_refs_and_nav(src_root: Path):
         elif parts[-1] == "__main__":
             continue
 
-        # flatten nav to just show included files, not full hierarchy
-        nav[parts[-1]] = doc_path.as_posix()
-        # nav[parts] = doc_path.as_posix()
+        nav[path.stem] = doc_path
 
         with mkdocs_gen_files.open(full_doc_path, "w") as fd:
             ident = ".".join(parts)
             fd.write(f"::: {ident}")
-
-        mkdocs_gen_files.set_edit_path(full_doc_path, path.relative_to(src_root))
 
     with mkdocs_gen_files.open("reference/SUMMARY.md", "w") as nav_file:
         nav_file.writelines(nav.build_literate_nav())

@@ -16,7 +16,7 @@ from reserve_it.models.field_types import AmPmTime
 class ReservationRequest(BaseModel):
     """
     Base model for validating reservation web form input.
-    Works as is, or subclass to add extra form fields for alternative user validation.
+    Works as is, or subclass to add extra form fields for additional user validation.
 
     Args:
         email (str): The user's email, required for inviting them to the reservation

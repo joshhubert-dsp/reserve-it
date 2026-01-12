@@ -1,6 +1,6 @@
 from datetime import time
 from functools import cached_property
-from typing import Self
+from typing import ClassVar, Self
 
 from loguru import logger
 from pydantic import (
@@ -19,26 +19,9 @@ from reserve_it.models.field_types import (
     ImageFile,
 )
 
-MAX_CALENDARS_SHOWN = 4
-"""If a resource has more than this many calendars, the combined reservation Google calendar
-view won't be shown on the form webpage. It'd be too hectic and not add value for the user."""
-
-
-DEFAULT_TO_APP_CONFIG_FIELDS = (
-    "maximum_days_ahead",
-    "minutes_before_reminder",
-    "calendar_shown",
-    "contact_email",
-)
-"""These required fields are duplicated between both AppConfig and ResourceConfig
-models. Supply them either globally in `app-config.yaml`, or per-resource in the
-resource-config yaml file. If they're specifid in both, the resource-config value takes
-precedence.
-"""
-
 
 class ResourceConfig(BaseSettings):
-    """Base reservation configuration model, loaded from the yaml files you add to your
+    """Reservation resource configuration model, loaded from the yaml files you add to your
     `resource-configs` directory.
     Encapsulates as many individual calendars as you put in the calendars dict,
     and together they constitute the total reservation capacity for a resource.
@@ -57,10 +40,10 @@ class ResourceConfig(BaseSettings):
         calendars (dict[str, CalendarInfo]): dict of "calendar short name" to
             CalendarInfos for each individual calendar. If more than 4 calendars are
             included
-        day_start_time (AmPmTime, optional): The beginning of the day for a resource. Defaults to
-            12:00 AM.
-        day_end_time (AmPmTime, optional): The end of the day for a resource. Defaults to
-            11:59 PM.
+        day_start_time (AmPmTime, optional): The beginning of the day for a resource,
+            passed as a string of the form `HH:MM AM/PM`. Defaults to 12:00 AM.
+        day_end_time (AmPmTime, optional): The end of the day for a resource, passed as
+            a string of the form `HH:MM AM/PM`. Defaults to 11:59 PM.
         minutes_increment (int, optional): Positive integer, the increment between allowed
             start/end time slots. Defaults to 30.
         maximum_minutes (int, optional): Positive integer, the maximum number of minutes allowed
@@ -73,7 +56,7 @@ class ResourceConfig(BaseSettings):
             be shared. Defaults to False.
         emoji (str, optional): emoji symbol to append to the form page title. Defaults to ''.
         description (str, optional): descriptive sub-heading for the resource page. Defaults to ''.
-        image (ImageFile | None, optiona): Bundle object for image to display on the
+        image (ImageFile | None, optional): Bundle object for image to display on the
             webpage. Images can be helpful diagrams or just pretty pictures, whatever
             your heart desires. All image files must be in the root of the
             resource-configs dir (no nesting). You can have one image per page, for now.
@@ -95,6 +78,23 @@ class ResourceConfig(BaseSettings):
         contact_email (str, optional): A contact email address for user issues, listed
             on this reservation page, if desired. Overrides the value defined in app
             config file, if present. Defaults to None.
+    """
+
+    MAX_CALENDARS_SHOWN: ClassVar = 4
+    """If a resource page has more than this many individual resource calendars, the Google calendar
+    view won't be shown on the form webpage. It'd be too hectic with the potential for
+    lots of overlapping reservations."""
+
+    DEFAULT_TO_APP_CONFIG_FIELDS: ClassVar = (
+        "maximum_days_ahead",
+        "minutes_before_reminder",
+        "calendar_shown",
+        "contact_email",
+    )
+    """These required fields are duplicated between both AppConfig and ResourceConfig
+    models. Supply them either globally in `app-config.yaml`, or per-resource in the
+    resource-config yaml file. If they're specifid in both, the resource-config value takes
+    precedence.
     """
 
     file_prefix: str
@@ -141,7 +141,7 @@ class ResourceConfig(BaseSettings):
 
     @cached_property
     def calendar_shown_final(self) -> bool:
-        return len(self.calendars) <= MAX_CALENDARS_SHOWN and self.calendar_shown
+        return len(self.calendars) <= self.MAX_CALENDARS_SHOWN and self.calendar_shown
 
     @classmethod
     def _model_validate_cleanly(cls, obj: dict, *, context=None, **kwargs):

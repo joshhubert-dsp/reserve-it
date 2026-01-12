@@ -1,5 +1,5 @@
 """
-Special types passed as arguments to `ResourceConfig`.
+Definitions of custom types for `ResourceConfig` fields.
 """
 
 from datetime import datetime, time
@@ -22,7 +22,7 @@ YamlPath = Annotated[FilePath, AfterValidator(must_be_yaml)]
 AM_PM_TIME_FORMAT = "%I:%M %p"
 
 
-def _parse_ampm_time(v: Any) -> time:
+def parse_ampm_time(v: Any) -> time:
     if isinstance(v, time):
         return v
     if isinstance(v, datetime):
@@ -32,7 +32,7 @@ def _parse_ampm_time(v: Any) -> time:
     raise TypeError(f"Expected datetime, time or AM/PM string, got {type(v)!r}")
 
 
-AmPmTime = Annotated[time, BeforeValidator(_parse_ampm_time)]
+AmPmTime = Annotated[time, BeforeValidator(parse_ampm_time)]
 """Clock time that can be parsed from a string in AM/PM 12-hour format, `HH:MM AM/PM`."""
 
 HexColor = Annotated[str, StringConstraints(pattern=r"^#[0-9A-Fa-f]{6}$")]

@@ -643,6 +643,20 @@ wheels = [
 ]
 
 [[package]]
+name = "mkdocs-typer2"
+version = "0.1.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mkdocs" },
+    { name = "pydantic" },
+    { name = "typer" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/53/bd/571e81ca812af99b64d6576539dafafd7adcd94afc02fb80e461bb95120a/mkdocs_typer2-0.1.6.tar.gz", hash = "sha256:0d83e01ddd108ebb2f61229d73317bc3ee9d94e98c68efeb4a5ef8492d163a75", size = 24995, upload-time = "2025-09-01T13:51:41.562Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/90/3f/aa2fcbf9740500b4a67c08794643cdac46b011a0789473387a4ca7b5007e/mkdocs_typer2-0.1.6-py3-none-any.whl", hash = "sha256:1642d0bd3efc3b2efe1efe3ee0231dcbc69602d592613264b621636e9169151f", size = 12073, upload-time = "2025-09-01T13:51:40.802Z" },
+]
+
+[[package]]
 name = "mkdocstrings"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1073,6 +1087,7 @@ dev = [
 docs = [
     { name = "mkdocs-gen-files" },
     { name = "mkdocs-literate-nav" },
+    { name = "mkdocs-typer2" },
     { name = "mkdocstrings-python" },
 ]
 
@@ -1105,6 +1120,7 @@ dev = [
 docs = [
     { name = "mkdocs-gen-files", specifier = ">=0.6.0" },
     { name = "mkdocs-literate-nav", specifier = ">=0.6.2" },
+    { name = "mkdocs-typer2", specifier = ">=0.1.6" },
     { name = "mkdocstrings-python", specifier = ">=2.0.1" },
 ]
 

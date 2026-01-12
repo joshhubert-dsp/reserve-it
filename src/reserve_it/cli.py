@@ -1,21 +1,26 @@
-import contextlib
 from pathlib import Path
 
 import typer
-from mkdocs.commands.serve import serve
 
 app = typer.Typer(
-    no_args_is_help=True, context_settings={"help_option_names": ["-h", "--help"]}
+    no_args_is_help=True,
+    help="A command line interface is provided with a couple conveniences.",
+    context_settings={"help_option_names": ["-h", "--help"]},
 )
 
 EXAMPLE_ROOT = Path(__file__).parent / "example"
 
 
 @app.command()
-def serve_example(port: int = 8000):
-    """Builds and serves a static example site template for viewing purposes. No actual
-    functionality beyond page navigation and no embedded calendar view, and a bit of
-    jinja template syntax strewn about, but gives you a good idea of the aesthetic anyway."""
+def serve_example(port: int = typer.Argument(8000, help="localhost port to serve on.")):
+    """Builds and serves a non-functional static example site template on `localhost:PORT` for
+    viewing purposes. Note that the embedded calendar view won't work since it's serving
+    the page template directly (you'll see a bit of jinja syntax that the app uses to
+    serve it), but you'll get a decent idea anyway."""
+    import contextlib
+
+    from mkdocs.commands.serve import serve
+
     with contextlib.chdir(EXAMPLE_ROOT):
         serve(
             config_file="mkdocs.yml",
@@ -25,9 +30,14 @@ def serve_example(port: int = 8000):
 
 
 @app.command()
-def init(project_root: Path | None = None):
+def init(
+    project_root: Path | None = typer.Argument(
+        None,
+        help="Root path of your project to initialize. If none is passed, uses the current working directory. ",
+    ),
+):
     """Initializes a new reserve-it project with the necessary directories and files,
-    copied directly from example dir."""
+    copied directly from the `example` dir."""
     if not project_root:
         project_root = Path.cwd()
 

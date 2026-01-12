@@ -29,7 +29,6 @@ from reserve_it.app.reminders import ReminderService
 from reserve_it.models.app_config import AppConfig
 from reserve_it.models.reservation_request import ReservationRequest
 from reserve_it.models.resource_config import (
-    DEFAULT_TO_APP_CONFIG_FIELDS,
     ResourceConfig,
 )
 
@@ -88,7 +87,7 @@ def load_resource_cfgs_from_yaml(
             app_config.custom_form_fields
         )
 
-        for field in DEFAULT_TO_APP_CONFIG_FIELDS:
+        for field in ResourceConfig.DEFAULT_TO_APP_CONFIG_FIELDS:
             if field not in data:
                 data[field] = getattr(app_config, field)
         configs[prefix] = ResourceConfig._model_validate_cleanly(data, extra="ignore")

@@ -50,6 +50,8 @@ theme:
 
 plugins:
   - search
+  - mkdocs-typer2:
+      pretty: true
   - gen-files:
       scripts:
         - docs/gen_docs.py
@@ -89,6 +91,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Google Calendar Setup: gcal_setup.md
+  - CLI: cli.md
   - Code Reference: reference/
 
 extra:
