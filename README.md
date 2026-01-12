@@ -58,12 +58,91 @@ All it takes to build a resource reservation system website for your organizatio
 
 6.  Modify the global config file `app-config.yaml` to suit your needs. Example:
     <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=src/reserve_it/example/app-config.yaml) -->
-
+    <!-- The below code snippet is automatically added from src/reserve_it/example/app-config.yaml -->
+    ```yaml
+    # FastAPI app title, also used for home page title if multiple resources are configured
+    title: Reserve-It Example
+    # FastAPI app description, also used for home page subtitle if multiple resources are
+    # configured
+    description: Form server for shared community amenity/resource reservations.
+    # App version
+    version: 0.1.0
+    # App email address that users receive confirmation/reminder emails from
+    app_email: app@email.com
+    # Timezone used by all calendars
+    timezone: America/Los_Angeles
+    
+    # Optionally, add custom form fields to all resource reservation webpages. These can be
+    # validated by defining a custom ReservationRequest (pydantic model) subclass in the
+    # python script. Individual resource pages can add more fields on top of this.
+    # The keys shown are required, but any legal html form input element styling key for the
+    # specified type is also allowed.
+    # You may not have guessed, but this one defines a password form field.
+    custom_form_fields:
+      - type: password # a valid html form input element type
+        name: password # variable name, the ReservationRequest subclass must have this as a field
+        label: Password # form label string displayed
+        required: True # can't leave it blank
+    
+    # Optionally, add a contact email address that users can badger about issues with all
+    # resource reservations. "Contact [email] to report issues (click to copy)." will appear
+    # at the bottom of all webpages. This can be overridden on a per-resource basis.
+    contact_email: contact@email.com
+    ```
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 7.  Add your resource reservation config yaml files under `resource-configs`, one for each set of resources, like this:
     <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=src/reserve_it/example/resource-configs/2-courts.yaml) -->
-
+    <!-- The below code snippet is automatically added from src/reserve_it/example/resource-configs/2-courts.yaml -->
+    ```yaml
+    # resource page title
+    name: Tennis Courts
+    # displayed along with title
+    emoji: 🎾
+    # resource page subtitle
+    description: Love is nothing.
+    # the google calendar ids for each individual tennis court, and their hex colors for the
+    # embedded calendar view.
+    calendars:
+      CourtA:
+        id: longhexstring1@group.calendar.google.com
+        color: "#AA0000"
+      CourtB:
+        id: longhexstring2@group.calendar.google.com
+        color: "#00AA00"
+      CourtC:
+        id: longhexstring3@group.calendar.google.com
+        color: "#0000AA"
+    
+    day_start_time: 8:00 AM
+    day_end_time: 8:00 PM
+    # the granularity of available reservations, here it's every hour from 8 to 8.
+    minutes_increment: 60
+    # the maximum allowed reservation length
+    maximum_minutes: 180
+    # users can choose whether to receive an email reminder
+    minutes_before_reminder: 60
+    # how far in advance users are allowed to make reservations
+    maximum_days_ahead: 14
+    # users can indicate whether they're willing to share a resource with others, adds a
+    # checkbox to the form if true
+    allow_shareable: true
+    
+    # Optionally, add additional custom form fields to this resource reservation webpage, on
+    # top of the ones defined in app-config-example.yaml
+    custom_form_fields:
+      - type: number
+        name: ntrp
+        label: NTRP Rating
+        required: True
+    
+    # Optionally, specify a path to a descriptive image for this resource, displayed on the
+    # form webpage. Must be a path relative to resource-configs dir.
+    image:
+      path: courts.jpg
+      caption: court map
+      pixel_width: 800
+    ```
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 8.  Modify the included Mkdocs config file `mkdocs.yml` to suit your aesthetic needs.
@@ -76,7 +155,47 @@ All it takes to build a resource reservation system website for your organizatio
 10. Write a simple python script to define custom form input validation, and then build
     the dynamic web app from the Mkdocs build:
     <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=src/reserve_it/example/server_example.py) -->
-
+    <!-- The below code snippet is automatically added from src/reserve_it/example/server_example.py -->
+    ```py
+    import os
+    from pathlib import Path
+    from typing import Self
+    
+    import uvicorn
+    from pydantic import model_validator
+    
+    from reserve_it import ReservationRequest, build_app
+    
+    
+    # This subclass handles password validation, from the password field defined in
+    # `app-config.yaml` under `custom_form_fields`
+    class PasswordProtectedRequest(ReservationRequest):
+        password: str
+    
+        @model_validator(mode="after")
+        def check_password(self) -> Self:
+            if self.password != os.getenv("PASSWORD"):
+                raise ValueError("Invalid input")
+            return self
+    
+    
+    PROJECT_ROOT = Path(__file__).parent
+    GCAL_CREDS_DIR = PROJECT_ROOT / ".gcal-credentials"
+    
+    if __name__ == "__main__":
+        # NOTE: if PROJECT ROOT is your current working dir, these commented out Path args
+        # are the defaults
+        app = build_app(
+            # app_config=PROJECT_ROOT / "app-config.yaml",
+            # resource_config_path=PROJECT_ROOT / "resource-configs",
+            # sqlite_dir=PROJECT_ROOT / "sqlite-dbs",
+            # gcal_secret_path=GCAL_CREDS_DIR / "client-secret.json",
+            # gcal_token_path=GCAL_CREDS_DIR / "auth-token.json",
+            # site_dir=PROJECT_ROOT / "site",
+            request_classes=PasswordProtectedRequest,
+        )
+        uvicorn.run(app, host="127.0.0.1", port=8000)
+    ```
     <!-- MARKDOWN-AUTO-DOCS:END -->
 
 11. Host the app somewhere accessible to your community, and disseminate any shared
