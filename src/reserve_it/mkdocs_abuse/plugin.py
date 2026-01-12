@@ -1,37 +1,9 @@
 from __future__ import annotations
 
-import tempfile
-from datetime import date, datetime, timedelta
-
-from pydantic import BaseModel, DirectoryPath, ValidationError
-
-from reserve_it import ASSETS_DEST, ASSETS_SRC, IMAGES_DEST
-from reserve_it.app.utils import load_resource_cfgs_from_yaml
-from reserve_it.models.app_config import AppConfig
-from reserve_it.models.field_types import AM_PM_TIME_FORMAT, YamlPath
-from reserve_it.models.resource_config import ResourceConfig
-
-"""
-MkDocs plugin: reserve-it
--------------------------
-
-Goal:
-- User has YAML configs describing reservable resources (courts, chargers, etc.)
-- At `mkdocs build` time, we generate one Markdown page per resource + an index page.
-- We generate Markdown by rendering Jinja templates that live INSIDE this Python package.
-- We DO NOT ask the user to copy templates/overrides into their repo.
-- MkDocs then renders these pages normally, so Material search/nav works.
-
-Key ideas:
-- `on_files`: add "virtual" pages to MkDocs' file list.
-- `on_page_read_source`: when MkDocs asks for a page's Markdown, we return a generated string.
-- `on_config`: inject JS/CSS URLs into the MkDocs config so users don't have to.
-- `on_post_build`: copy packaged assets into the built `site/` directory (so those URLs exist).
-"""
-
-# Python 3.9+
 import importlib.resources
 import shutil
+import tempfile
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from jinja2 import (
@@ -49,38 +21,24 @@ from mkdocs.exceptions import ConfigurationError
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File, Files
 from mkdocs.structure.pages import Page
+from pydantic import BaseModel, DirectoryPath, ValidationError
 
-# def slugify(s: str) -> str:
-#     """
-#     Basic slugify:
-#     - lowercases
-#     - turns spaces/underscores into '-'
-#     - strips repeated '-'
-
-#     This is intentionally simple and dependency-free.
-#     """
-#     s = s.strip().lower()
-#     s = re.sub(r"[^a-z0-9 _-]+", "", s)
-#     s = re.sub(r"[\s_]+", "-", s)
-#     s = re.sub(r"-{2,}", "-", s)
-#     return s.strip("-") or "resource"
-
+from reserve_it import ASSETS_DEST, ASSETS_SRC, IMAGES_DEST
+from reserve_it.app.utils import load_resource_cfgs_from_yaml
+from reserve_it.models.app_config import AppConfig
+from reserve_it.models.field_types import AM_PM_TIME_FORMAT, YamlPath
+from reserve_it.models.resource_config import ResourceConfig
 
 CSS_ASSETS = [css.name for css in ASSETS_SRC.glob("*.css")]
 JS_ASSETS = [js.name for js in ASSETS_SRC.glob("*.js")]
 
 
 REMOTE_JS = ["https://unpkg.com/htmx.org@1.9.12"]
-# Template names inside this package's templates/ directory.
 FORM_TEMPLATE = "form_page.md.j2"
 FORM_TEMPLATES_DIR = "form-templates"
 
 
-# -----------------------------------
-# The actual MkDocs plugin class
-# -----------------------------------
-
-
+# TODO args for switching theme tweaks
 class ReserveItPluginConfig(Config):
     """
     MkDocs plugin configuration schema.
@@ -92,39 +50,22 @@ class ReserveItPluginConfig(Config):
         str, default=str(Path.cwd() / "resource-configs")
     )
     assets_enabled = config_options.Type(bool, default=True)
-    # Base path that your frontend calls for your FastAPI endpoints.
-    # api_base = config_options.Type(str, default="/api")
-    # Where generated docs live (inside MkDocs docs tree). This is logical paths,
-    # not user filesystem paths.
-    # docs_out_dir = config_options.Type(str, default="")
 
 
 class ConfigValidator(BaseModel):
     app_config: YamlPath
     resource_config_dir: DirectoryPath
     assets_enabled: bool
-    # Base path that your frontend calls for your FastAPI endpoints.
-    # api_base: str
-    # Where generated docs live (inside MkDocs docs tree). This is logical paths,
-    # not user filesystem paths.
-    # docs_out_dir: DirectoryPath
 
 
 class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
     """
-    MkDocs plugin that generates resource pages from YAML configs.
+    MkDocs plugin that generates resource reservation pages from YAML configs.
 
     User config example in mkdocs.yml:
 
     plugins:
-      - reserve-it:
-          config_dir: client_configs/resources
-          route_prefix: reserve
-          api_base: /api
-          include_index: true
-          assets:
-            enabled: true
-            asset_dir: assets/reserve-it
+      - reserve-it
     """
 
     def __init__(self):
@@ -151,9 +92,7 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             lstrip_blocks=True,
         )
 
-    # -----------------------------
-    # Hook: on_config
-    # -----------------------------
+    # --- HOOKS ---
     def on_config(self, config):
         """
         Called early. Great place to:
@@ -192,31 +131,6 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         return config
 
-    def _extract_templates(self, config):
-        """
-        Extract packaged templates to a real filesystem directory.
-        Jinja2's FileSystemLoader needs actual files.
-        """
-        self._tmp = tempfile.TemporaryDirectory(prefix="reserve_it_templates_")
-        out_dir = Path(self._tmp.name)
-
-        # reserve_it/templates inside your installed package
-        pkg_templates = Path(
-            importlib.resources.files("reserve_it.mkdocs_abuse").joinpath("templates")
-        )
-
-        # Copy templates out of the package into the temp dir
-        for res in pkg_templates.rglob("*"):
-            if res.is_dir():
-                continue
-            rel = res.relative_to(pkg_templates)
-            dst = out_dir / rel
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            dst.write_bytes(res.read_bytes())
-
-        self._plugin_template_dir = out_dir
-        return config
-
     def on_env(self, env, config, files):
         """
         Add plugin templates to the Jinja loader search path.
@@ -237,27 +151,6 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         return env
 
-    def _add_markdown_exts(self, config):
-        # 1) Ensure pymdownx.emoji is enabled
-        mdx = config.setdefault("markdown_extensions", [])
-        if "pymdownx.emoji" not in mdx:
-            mdx.append("pymdownx.emoji")
-
-        # 2) Ensure its config exists and set the callables
-        # MkDocs commonly uses `mdx_configs`; some setups use `markdown_extensions_configs`
-        cfg_key = (
-            "mdx_configs" if "mdx_configs" in config else "markdown_extensions_configs"
-        )
-        mdx_cfgs = config.setdefault(cfg_key, {})
-        emoji_cfg = mdx_cfgs.setdefault("pymdownx.emoji", {})
-
-        # Set/override the bits you want
-        emoji_cfg["emoji_index"] = twemoji
-        emoji_cfg["emoji_generator"] = to_svg
-
-    # -----------------------------
-    # Hook: on_files
-    # -----------------------------
     def on_files(self, files: Files, config) -> Files:
         """
         MkDocs calls this with the discovered set of documentation source files.
@@ -295,9 +188,6 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         return files
 
-    # -----------------------------
-    # Hook: on_page_read_source
-    # -----------------------------
     def on_page_read_source(self, page: Page, config) -> str | None:
         """
         MkDocs calls this when it wants the *source Markdown text* for a page.
@@ -307,9 +197,6 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         """
         return self._generated_markdown.get(page.file.src_path)
 
-    # -----------------------------
-    # Hook: on_post_build
-    # -----------------------------
     def on_post_build(self, config) -> None:
         """
         Called after MkDocs has rendered the site into `site/`.
@@ -350,9 +237,51 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             self._tmp.cleanup()
             self._tmp = None
 
-    # -----------------------------
-    # Jinja rendering helpers
-    # -----------------------------
+    # --- HELPERS ---
+
+    def _extract_templates(self, config):
+        """
+        Extract packaged templates to a real filesystem directory.
+        Jinja2's FileSystemLoader needs actual files.
+        """
+        self._tmp = tempfile.TemporaryDirectory(prefix="reserve_it_templates_")
+        out_dir = Path(self._tmp.name)
+
+        # reserve_it/templates inside your installed package
+        pkg_templates = Path(
+            importlib.resources.files("reserve_it.mkdocs_abuse").joinpath("templates")
+        )
+
+        # Copy templates out of the package into the temp dir
+        for res in pkg_templates.rglob("*"):
+            if res.is_dir():
+                continue
+            rel = res.relative_to(pkg_templates)
+            dst = out_dir / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_bytes(res.read_bytes())
+
+        self._plugin_template_dir = out_dir
+        return config
+
+    def _add_markdown_exts(self, config):
+        # 1) Ensure pymdownx.emoji is enabled
+        mdx = config.setdefault("markdown_extensions", [])
+        if "pymdownx.emoji" not in mdx:
+            mdx.append("pymdownx.emoji")
+
+        # 2) Ensure its config exists and set the callables
+        # MkDocs commonly uses `mdx_configs`; some setups use `markdown_extensions_configs`
+        cfg_key = (
+            "mdx_configs" if "mdx_configs" in config else "markdown_extensions_configs"
+        )
+        mdx_cfgs = config.setdefault(cfg_key, {})
+        emoji_cfg = mdx_cfgs.setdefault("pymdownx.emoji", {})
+
+        # Set/override the bits you want
+        emoji_cfg["emoji_index"] = twemoji
+        emoji_cfg["emoji_generator"] = to_svg
+
     def _render_resource_page_markdown(
         self, resource: ResourceConfig, single_page: bool
     ) -> str:

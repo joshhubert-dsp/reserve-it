@@ -55,8 +55,10 @@
           id="date"
           class="reservation-box"
           title="The date for your reservation."
+          {% raw %}
           value="{{ today }}"
           min="{{ today }}"
+          {% endraw %}
           required
       />
     </div>

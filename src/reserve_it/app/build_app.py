@@ -114,10 +114,9 @@ def build_app(
     app.add_exception_handler(ValidationError, handle_validation_error)
     app.add_exception_handler(Exception, log_unexpected_exception)
 
-    # add directory for static built files
-    app.mount("/", StaticFiles(directory=site_dir), name="static")
-
     _register_resource_routes(app, dependencies.resource_bundles, app_config)
+    # add directory for static built files (including from any markdown files the user added)
+    app.mount("/", StaticFiles(directory=site_dir, html=True), name="static")
 
     return app
 

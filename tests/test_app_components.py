@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 import pytest
 from apscheduler.jobstores.base import JobLookupError
 
-from reserve_it.app.build import _normalize_request_classes
+from reserve_it.app.build_app import _normalize_request_classes
 from reserve_it.app.calendar_service import GoogleCalendarService
 from reserve_it.app.database import ReservationDatabase
 from reserve_it.app.reminders import ReminderService

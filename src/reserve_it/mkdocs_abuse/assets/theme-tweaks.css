@@ -1,4 +1,36 @@
-/* TODO make it work */
+/* TODO part these out for easy switching from config args */
+
+/* hide default MkDocs page headline */
+.md-content__inner > h1:first-of-type {
+  display: none;
+  margin: 0;
+  margin-bottom: 0;
+}
+
+/* hide top right logo button */
+/* TODO make this optional with a config arg */
+.md-header__button.md-logo {
+  display: none !important;
+}
+.md-nav__button.md-logo {
+  display: none !important;
+}
+.md-nav__title {
+  margin: 0 !important;
+  margin-top: 0 !important;
+  /* padding-top: 0 !important; */
+}
+.md-nav.md-nav--primary {
+  margin: 0 !important;
+  margin-top: 0 !important;
+}
+/* .md-sidebar__inner {
+  padding-top: 0;
+} */
+
+
+
+/* TODO make these work */
 @media (min-width: 1200px) {
     :root {
         --md-sidebar-width: 4rem !important;
@@ -14,9 +46,3 @@
   max-width: 100% !important;
 }
 
-/* hide default MkDocs page headline spacing */
-.md-content__inner > h1:first-of-type {
-  display: none;
-  margin: 0;
-  margin-bottom: 0;
-}
