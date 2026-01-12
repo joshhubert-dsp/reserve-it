@@ -6,7 +6,7 @@ A dead-simple reservation system web app framework, built on Google Calendar and
 Mkdocs-Material, implemented as a Mkdocs plugin. Designed with the goal of making
 communal sharing and coordination effortless and ubiquitous.
 
-Docs [here](joshhubert-dsp.github.io/reserve-it/).
+Docs [here](https://joshhubert-dsp.github.io/reserve-it/).
 
 `reserve-it` is a lightweight framework that enables rapidly building a web app for
 shared community amenity/resource reservations. It provides a customizable validation
@@ -42,7 +42,7 @@ All it takes to build a resource reservation system website for your organizatio
 5.  If you like what you see, run `reserve-it init` to copy the necessary structure
     directly from the package's `example` directory into your current working 
     directory. If you have a `.gitignore` file already in your directory, the
-    recommended default ignores will be appended. You'll end up with following
+    recommended default ignores will be appended. Now you'll have the following
     structure:
 
     ```
