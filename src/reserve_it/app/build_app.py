@@ -66,7 +66,7 @@ def build_app(
             Defaults to `[CWD]/sqlite-dbs/`.
         gcal_secret_path (FilePath): Path to the json file holding static OAuth client ID
             desktop app credentials you generated and downloaded from
-            `https://console.cloud.google.com/apis/credentials`. Defaults to
+            <https://console.cloud.google.com/apis/credentials>. Defaults to
             `[CWD]/.gcal-credentials/client-secret.json`.
         gcal_token_path (FilePath | None, optional): If desired, path to a json file to
             save the refresh token and temporary auth token to on first authenticating
