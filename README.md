@@ -131,7 +131,7 @@ All it takes to build a resource reservation system website for your organizatio
     allow_shareable: true
     
     # Optionally, add additional custom form fields to this resource reservation webpage, on
-    # top of the ones defined in app-config-example.yaml
+    # top of the ones defined in app-config.yaml
     custom_form_fields:
       - type: number
         name: ntrp
