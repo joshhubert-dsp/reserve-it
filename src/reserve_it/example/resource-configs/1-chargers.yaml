@@ -26,7 +26,7 @@ maximum_days_ahead: 7
 allow_end_next_day: true
 
 # Optionally, add additional custom form fields to this resource reservation webpage, on
-# top of the ones defined in app-config-example.yaml
+# top of the ones defined in app-config.yaml
 custom_form_fields:
   - type: text
     name: make

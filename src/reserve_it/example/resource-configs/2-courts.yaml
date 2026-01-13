@@ -32,7 +32,7 @@ maximum_days_ahead: 14
 allow_shareable: true
 
 # Optionally, add additional custom form fields to this resource reservation webpage, on
-# top of the ones defined in app-config-example.yaml
+# top of the ones defined in app-config.yaml
 custom_form_fields:
   - type: number
     name: ntrp
