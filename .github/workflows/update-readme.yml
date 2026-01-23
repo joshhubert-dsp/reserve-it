@@ -21,7 +21,7 @@ jobs:
           private-key: ${{ secrets.TRUSTY_PUSHBOT_PRIVATE_KEY }}
 
       - name: Checkout
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@v6.0.2
         with:
           token: ${{ steps.app-token.outputs.token }}
           # force a full checkout to ensure git context
