@@ -1,14 +1,18 @@
 from pathlib import Path
 
 from fastapi.templating import Jinja2Templates
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 PROJECT_ROOT = Path(__file__).parents[2]
-SOURCE_ROOT = PROJECT_ROOT / "src" / "reserve_it"
-MKDOCS_ROOT = SOURCE_ROOT / "mkdocs_abuse"
-EXAMPLE_DIR = SOURCE_ROOT / "example"
-TEMPLATES = Jinja2Templates(SOURCE_ROOT / "app" / "templates")
+TEMPLATES = Jinja2Templates(
+    env=Environment(
+        loader=PackageLoader("reserve_it", "app/templates"),
+        autoescape=select_autoescape(["html", "xml"]),
+    )
+)
 
 # mkdocs assets directories:
+MKDOCS_ROOT = PROJECT_ROOT / "src" / "reserve_it" / "mkdocs_abuse"
 ASSETS_SRC = MKDOCS_ROOT / "assets"
 # ship JS/CSS from package into site/ and auto-include them.
 ASSETS_DEST = Path("assets/reserve-it")
