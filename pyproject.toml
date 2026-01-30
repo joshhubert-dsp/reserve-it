@@ -75,7 +75,13 @@ reserve-it = "reserve_it.cli:app"
 reserve-it = "reserve_it.mkdocs_abuse.plugin:ReserveItPlugin"
 
 [tool.setuptools.package-data]
-reserve_it = ["app/templates/**/*", "mkdocs_abuse/**/*", "example/**/*", "example/**/.*","example/**/.*/**/*"]
+reserve_it = [
+    "app/templates/**/*", 
+    "mkdocs_abuse/**/*", 
+    "example/**/*",
+    "example/.gitignore",
+    "example/.gcal-credentials/README.md"
+]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
