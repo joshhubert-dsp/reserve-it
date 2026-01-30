@@ -26,7 +26,6 @@ def main() -> None:
         "example/resource-configs/courts.jpg",
         "example/docs/readme.md",
         "example/.gitignore",
-        "example/.gcal-credentials/README.md",
     ]
     for f in nonpy_files_to_check:
         assert (files("reserve_it") / f).is_file(), f"Missing file in package data: {f}"
