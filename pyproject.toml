@@ -80,7 +80,6 @@ reserve_it = [
     "mkdocs_abuse/**/*", 
     "example/**/*",
     "example/.gitignore",
-    "example/.gcal-credentials/README.md"
 ]
 
 [tool.setuptools]

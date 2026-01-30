@@ -29,6 +29,24 @@ def serve_example(port: int = typer.Argument(8000, help="localhost port to serve
         )
 
 
+README_TEXT = """\
+# Google Calendar Credentials
+
+This directory is intentionally gitignored by default.
+Your `client-secret.json` downloaded from your installed google calendar app should go
+here. `auth-token.json` will be generated and stored here as well on first run.
+"""
+
+
+def ensure_gcal_credentials_dir(root: Path) -> None:
+    gcal_dir = root / ".gcal-credentials"
+    gcal_dir.mkdir(exist_ok=True)
+    readme = gcal_dir / "README.md"
+
+    if not readme.exists():
+        readme.write_text(README_TEXT, encoding="utf-8")
+
+
 @app.command()
 def init(
     project_root: Path | None = typer.Argument(
@@ -58,6 +76,8 @@ def init(
 
         elif file_or_dir.is_dir():
             (project_root / relative).mkdir(parents=True, exist_ok=True)
+
+    ensure_gcal_credentials_dir(project_root)
 
 
 if __name__ == "__main__":
