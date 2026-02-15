@@ -2,7 +2,7 @@
 
 {% if message %}
 <div
-    class="rounded-md px-4 py-3 text-sm mb-3 {% if error %} bg-red-100 text-red-800 {% else %} bg-emerald-100 text-emerald-800 {% endif %}"
+    class="ri-response-box {% if error %}ri-response-box-error{% else %}ri-response-box-success{% endif %}"
 >
     {{ message | e | replace('\n', '<br />') | safe }}
 </div>

@@ -50,6 +50,26 @@
 }
 
 /* =========================
+   Response message
+   ========================= */
+#result .ri-response-box {
+  border-radius: 0.375rem; /* rounded-md */
+  padding: 0.75rem 1rem; /* py-3 px-4 */
+  font-size: 0.875rem; /* text-sm */
+  margin-bottom: 0.75rem; /* mb-3 */
+}
+
+#result .ri-response-box-success {
+  background-color: #d1fae5; /* emerald-100 */
+  color: #065f46; /* emerald-800 */
+}
+
+#result .ri-response-box-error {
+  background-color: #fee2e2; /* red-100 */
+  color: #991b1b; /* red-800 */
+}
+
+/* =========================
    Input / select / textarea
    ========================= */
 .ri-root .reservation-box {

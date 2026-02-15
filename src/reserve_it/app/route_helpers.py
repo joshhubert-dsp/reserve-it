@@ -208,7 +208,7 @@ async def cancel_reservation(
         if not event_n_cal:
             return denial_response(
                 request,
-                "No reservations were found to cancel with the requested parameters.",
+                "This email has no reservations to cancel within the requested timespan.",
             )
 
         # cancel the event
