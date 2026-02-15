@@ -62,10 +62,10 @@ Documentation = "https://joshhubert-dsp.github.io/reserve-it"
 
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools-scm]
+[tool.setuptools_scm]
 version_scheme = "guess-next-dev"
 local_scheme = "no-local-version"
 
