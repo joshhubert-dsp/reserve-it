@@ -1,6 +1,6 @@
 [project]
 name = "reserve-it"
-version = "1.0.0"
+dynamic = ["version"]
 description = "A dead-simple reservation system web app framework, built on Google Calendar and Mkdocs-Material, implemented as a Mkdocs plugin."
 readme = "README.md"
 authors = [
@@ -62,8 +62,12 @@ Documentation = "https://joshhubert-dsp.github.io/reserve-it"
 
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools-scm]
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

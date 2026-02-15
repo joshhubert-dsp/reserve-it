@@ -1,0 +1,4 @@
+exclude uv.lock
+exclude mkdocs.yml
+prune .github
+prune docs
