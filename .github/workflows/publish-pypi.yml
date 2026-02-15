@@ -2,20 +2,18 @@ name: "Publish to PyPi"
 
 on:
   push:
-    branches:
-      - main
     tags:
       # Publish on any tag starting with a `v`, e.g., v0.1.0
       - v*
 
 jobs:
-  run:
+  publish:
     runs-on: ubuntu-latest
     environment:
       name: pypi
     permissions:
       id-token: write
-      contents: read
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -35,3 +33,11 @@ jobs:
         run: uv run --isolated --no-project --with dist/*.tar.gz tests/publish_test.py
       - name: Publish
         run: uv publish
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ github.ref_name }}"
+          gh release view "$tag" >/dev/null 2>&1 || \
+          gh release create "$tag" dist/*.whl dist/*.tar.gz --title "$tag" --verify-tag --fail-on-no-commits --notes-from-tag

@@ -115,12 +115,9 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
             self.cfg.resource_config_dir, self.app_config
         )
 
-        # if not config.get("site_name"):
         config["site_name"] = self.app_config.title
-        # config["use_directory_urls"] = True
 
         self._extract_templates(config)
-        # self._add_markdown_exts(config)
         config["extra_javascript"] += REMOTE_JS
 
         if self.cfg.assets_enabled:
@@ -302,7 +299,7 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
 
         time_slots = [dt.time().strftime(AM_PM_TIME_FORMAT) for dt in time_slots]
 
-        # Everything you pass here becomes available in the .md.j2 template.
+        # Everything passed here becomes available in the .md.j2 template.
         return tpl.render(
             single_page=single_page,
             resource=resource,

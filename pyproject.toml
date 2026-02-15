@@ -24,35 +24,35 @@ classifiers = [
 ]
 
 dependencies = [
-    "apscheduler>=3.11.1",
+    "apscheduler>=3.11.2",
     "colorama>=0.4.6",
     "devtools>=0.12.2",
-    "fastapi>=0.121.2",
+    "fastapi>=0.129.0",
     "gcsa>=2.6.0",
     "jinja2>=3.1.6",
     "loguru>=0.7.3",
     "mkdocs-material>=9.7.1",
-    "pillow>=12.0.0",
+    "pillow>=12.1.1",
     "pydantic-settings>=2.12.0",
-    "pydantic[email]>=2.12.4",
-    "python-multipart>=0.0.20",
+    "pydantic[email]>=2.12.5",
+    "python-multipart>=0.0.22",
     "pyyaml>=6.0.3",
-    "rich>=14.2.0",
-    "sqlmodel>=0.0.27",
-    "typer>=0.21.1",
-    "uvicorn>=0.38.0",
+    "rich>=14.3.2",
+    "sqlmodel>=0.0.33",
+    "typer>=0.23.1",
+    "uvicorn>=0.40.0",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.4.2",
-    "ruff>=0.14.8",
+    "pytest>=9.0.2",
+    "ruff>=0.15.1",
 ]
 docs = [
     "mkdocs-gen-files>=0.6.0",
     "mkdocs-literate-nav>=0.6.2",
-    "mkdocs-typer2>=0.1.6",
-    "mkdocstrings-python>=2.0.1",
+    "mkdocs-typer2>=0.2.0",
+    "mkdocstrings-python>=2.0.2",
 ]
 
 [project.urls]

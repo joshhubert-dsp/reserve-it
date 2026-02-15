@@ -33,7 +33,7 @@ README_TEXT = """\
 # Google Calendar Credentials
 
 This directory is intentionally gitignored by default.
-Your `client-secret.json` downloaded from your installed google calendar app should go
+Your `client-secret.json` downloaded from your installed Google Calendar app should go
 here. `auth-token.json` will be generated and stored here as well on first run.
 """
 

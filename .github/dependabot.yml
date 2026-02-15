@@ -8,5 +8,6 @@ updates:
       interval: "weekly"
   - package-ecosystem: "uv"
     directory: "/"
+    versioning-strategy: "increase"
     schedule:
       interval: "weekly"

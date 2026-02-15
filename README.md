@@ -1,12 +1,11 @@
 # reserve-it!
 
-[![Tests](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml)
+[![Tests](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml) [![PyPI](https://img.shields.io/pypi/v/reserve-it?logo=pypi&logoColor=white&color=3775A9](https://pypi.org/project/reserve-it/) ![Python](https://img.shields.io/pypi/pyversions/reserve-it?logo=python&logoColor=white&color=3776AB) [![Docs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?style=for-the-badge&logo=MaterialForMkDocs&logoColor=white)](https://joshhubert-dsp.github.io/reserve-it/)
+
 
 A dead-simple reservation system web app framework, built on Google Calendar and
 Mkdocs-Material, implemented as a Mkdocs plugin. Designed with the goal of making
 communal sharing and coordination effortless and ubiquitous.
-
-Docs [here](https://joshhubert-dsp.github.io/reserve-it/).
 
 `reserve-it` is a lightweight framework that enables rapidly building a web app for
 shared community amenity/resource reservations. It provides a customizable validation
@@ -32,7 +31,7 @@ All it takes to build a resource reservation system website for your organizatio
 2.  Set up an installed app client secret for your Google Calendar account. Detailed
     instructions forthcoming!
 
-3.  Install the reserve-it package in your python environment with `pip install git+https://github.com/joshhubert-dsp/reserve-it`. PyPi package coming soon!
+3.  Install the reserve-it package in your python environment with `pip install reserve-it` or `uv add reserve-it`.
 
 4.  To see a non-functional example of the site frontend build template on `localhost:8000`,
     run `reserve-it serve-example`. Note that the embedded calendar view won't work
