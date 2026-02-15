@@ -1,6 +1,6 @@
 # reserve-it!
 
-[![Tests](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml) [![PyPI](https://img.shields.io/pypi/v/reserve-it?logo=pypi&logoColor=white&color=3775A9](https://pypi.org/project/reserve-it/) ![Python](https://img.shields.io/pypi/pyversions/reserve-it?logo=python&logoColor=white&color=3776AB) [![Docs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?style=for-the-badge&logo=MaterialForMkDocs&logoColor=white)](https://joshhubert-dsp.github.io/reserve-it/)
+[![Tests](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/joshhubert-dsp/reserve-it/actions/workflows/test.yml) [![PyPI](https://img.shields.io/pypi/v/reserve-it?logo=pypi&logoColor=white&color=3775A9)](https://pypi.org/project/reserve-it/) ![Python](https://img.shields.io/pypi/pyversions/reserve-it?logo=python&logoColor=white&color=3776AB) [![Docs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?style=for-the-badge&logo=MaterialForMkDocs&logoColor=white)](https://joshhubert-dsp.github.io/reserve-it/)
 
 
 A dead-simple reservation system web app framework, built on Google Calendar and
