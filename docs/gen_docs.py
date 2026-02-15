@@ -4,7 +4,8 @@ from pathlib import Path
 
 import mkdocs_gen_files
 
-# from reserve_it import PROJECT_ROOT
+# NOTE TO FUTURE SELF: This stuff happens in the context of a full source checkout, and
+# that's the only reason reason this works
 PROJECT_ROOT = Path(__file__).parents[1]
 README_PATH = PROJECT_ROOT / "README.md"
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -63,6 +64,5 @@ def gen_code_refs_and_nav(src_root: Path):
         nav_file.writelines(nav.build_literate_nav())
 
 
-# if __name__ == "__main__":
 gen_home_page(README_PATH)
 gen_code_refs_and_nav(SRC_ROOT)

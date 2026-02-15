@@ -23,15 +23,20 @@ from mkdocs.structure.files import File, Files
 from mkdocs.structure.pages import Page
 from pydantic import BaseModel, DirectoryPath, ValidationError
 
-from reserve_it import ASSETS_DEST, ASSETS_SRC, IMAGES_DEST
 from reserve_it.app.utils import load_resource_cfgs_from_yaml
 from reserve_it.models.app_config import AppConfig
 from reserve_it.models.field_types import AM_PM_TIME_FORMAT, YamlPath
 from reserve_it.models.resource_config import ResourceConfig
 
+# mkdocs assets directories:
+EVIL_ROOT = Path(importlib.resources.files("reserve_it.mkdocs_abuse"))
+ASSETS_SRC = EVIL_ROOT / "assets"
 CSS_ASSETS = [css.name for css in ASSETS_SRC.glob("*.css")]
 JS_ASSETS = [js.name for js in ASSETS_SRC.glob("*.js")]
 
+# copy JS/CSS from package into site/ and auto-include them.
+ASSETS_DEST = Path("assets/reserve-it")
+IMAGES_DEST = ASSETS_DEST / "images"
 
 REMOTE_JS = ["https://unpkg.com/htmx.org@1.9.12"]
 FORM_TEMPLATE = "form_page.md.j2"
@@ -245,9 +250,7 @@ class ReserveItPlugin(BasePlugin[ReserveItPluginConfig]):
         out_dir = Path(self._tmp.name)
 
         # reserve_it/templates inside your installed package
-        pkg_templates = Path(
-            importlib.resources.files("reserve_it.mkdocs_abuse").joinpath("templates")
-        )
+        pkg_templates = EVIL_ROOT / "templates"
 
         # Copy templates out of the package into the temp dir
         for res in pkg_templates.rglob("*"):
