@@ -67,6 +67,8 @@ plugins:
           paths: [../src]
           options:
             show_source: false
+            docstring_style: google
+            docstring_section_style: list
 
 markdown_extensions:
   - pymdownx.highlight:
