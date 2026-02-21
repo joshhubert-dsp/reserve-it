@@ -17,7 +17,7 @@ class AppConfig(BaseSettings):
     and `contact_email` can be set globally here, or overridden for individual resources
     in the resource config yaml file.
 
-    Args:
+    Attributes:
         title (str): Title of your app, displayed on the home page if there are multiple
             resources, and openapi docs if enabled.
         description (str): Description of your app, displayed on the home page if there

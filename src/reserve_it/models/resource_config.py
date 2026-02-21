@@ -30,7 +30,7 @@ class ResourceConfig(BaseSettings):
     and `contact_email` can be set globally in `app-config.yaml`, in which case those
     fields should be omitted from the resource config yaml file.
 
-    Args:
+    Attributes:
         file_prefix (str): the loaded yaml file prefix for this resource, used as a
             short name in the app.
         route_prefix (str): the fastapi endpoint prefix for this resource, will be

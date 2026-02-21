@@ -18,7 +18,7 @@ class ReservationRequest(BaseModel):
     Base model for validating reservation web form input.
     Works as is, or subclass to add extra form fields for additional user validation.
 
-    Args:
+    Attributes:
         email (str): The user's email, required for inviting them to the reservation
             event and sending a reminder email.
         date (date): The date of the reservation.

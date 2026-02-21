@@ -70,7 +70,7 @@ class CalendarInfo(BaseModel):
     Each identifies a Google calendar mapping to an individually reservable resource
     (ie. a single tennis court out of many).
 
-    Args:
+    Attributes:
         id (str): The ID string for the Google calendar, of the form
             "[longhexstring]@group.calendar.google.com".
         color (HexColor | None , optional): Color hex string with 6 digits (no alpha),
@@ -92,7 +92,7 @@ class CustomFormField(BaseModel):
     Just make sure to also subclass the ReservationRequest model for proper validation
     of custom fields.
 
-    Args:
+    Attributes:
         type (HtmlFormInputType): A string specifying for one of the legal form input types.
         name (str): The name value is used by both an input's returned key name
             (made accessible to ReservationRequest for validation) and id attribute (for
@@ -118,7 +118,7 @@ class ImageFile(BaseModel):
     then the rendered image uses the original image's actual dimensions. If only one of them is
     None, then the rendered image keeps the original image's aspect ratio.
 
-    Args:
+    Attributes:
         path (Path): Image filepath. Must be relative to the resource-configs directory.
         caption (str, optional): Caption to display for the image. Defaults to "".
         pixel_width (int | None , optional): Desired pixel width for the displayed image.
