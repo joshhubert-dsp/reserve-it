@@ -26,9 +26,9 @@ class ResourceConfig(BaseSettings):
     Encapsulates as many individual calendars as you put in the calendars dict,
     and together they constitute the total reservation capacity for a resource.
 
-    Any settings you want to be constant for all resources in your system can be set
-    globally using environment variables with the same names (case-insensitive), they
-    are automatically loaded.
+    The fields `maximum_days_ahead`, `minutes_before_reminder`, `calendar_shown`,
+    and `contact_email` can be set globally in `app-config.yaml`, in which case those
+    fields should be omitted from the resource config yaml file.
 
     Args:
         file_prefix (str): the loaded yaml file prefix for this resource, used as a
@@ -66,18 +66,18 @@ class ResourceConfig(BaseSettings):
         maximum_days_ahead (int | None, optional): Positive integer, how many days ahead the user
             can reserve this resource. If None, reservations can be made for any time
             in the future. Overrides the value defined in app config file, if present.
-            Defaults to 14.
+            Defaults to 14 if not.
         minutes_before_reminder (int, optional): Positive integer, how many minutes
             before the reservation to send an email reminder to the user, if they've
             selected to receive one. Overrides the value defined in app config file, if
-            present. Defaults to 60.
+            present. Defaults to 60 if not.
         calendar_shown (bool, optional): If False, omit the embedded Google calendar
             from the form page. The calendar view will also be omitted if the resource
             has more than 4 calendars, to avoid visual clutter. Overrides the value
-            defined in app config file, if present. Defaults to True.
+            defined in app config file, if present. Defaults to True if not.
         contact_email (str, optional): A contact email address for user issues, listed
             on this reservation page, if desired. Overrides the value defined in app
-            config file, if present. Defaults to None.
+            config file, if present. Defaults to None if not.
     """
 
     MAX_CALENDARS_SHOWN: ClassVar = 4

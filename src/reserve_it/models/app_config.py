@@ -13,6 +13,10 @@ class AppConfig(BaseSettings):
     """App configuration model passed to `build_app()`, either loaded from
     `app-config.yaml` or constructed at runtime.
 
+    The fields `maximum_days_ahead`, `minutes_before_reminder`, `calendar_shown`,
+    and `contact_email` can be set globally here, or overridden for individual resources
+    in the resource config yaml file.
+
     Args:
         title (str): Title of your app, displayed on the home page if there are multiple
             resources, and openapi docs if enabled.
@@ -33,18 +37,19 @@ class AppConfig(BaseSettings):
         maximum_days_ahead (int | None, optional): Positive integer, global default for
             how many days ahead users can reserve all resources. If None, reservations
             can be made for any time in the future. Individual resource config files can
-            override this. Defaults to 14.
+            override this. Defaults to 14 if not set here or overridden.
         minutes_before_reminder (int, optional): Positive integer, global default for
             how many minutes before a reservation to send an email reminder to the user,
             if they've selected to receive one. Individual resource config files can
-            override this. Defaults to 60.
+            override this. Defaults to 60 if not set here or overridden.
         calendar_shown (bool, optional): If False, omit the embedded Google calendar
             view from all reservation pages. The calendar view will also be omitted if
             the resource has more than 4 calendars, to avoid visual clutter. Individual
-            resource config files can override this. Defaults to True.
+            resource config files can override this. Defaults to True if not set
+            here or overridden.
         contact_email (str, optional): A contact email address for user issues, listed
             on all reservation pages if desired. Individual resource config files can
-            override this. Defaults to None.
+            override this. Defaults to None if not set here or overridden.
     """
 
     title: str
